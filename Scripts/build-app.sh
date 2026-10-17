@@ -63,6 +63,16 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BINARY" "$APP/Contents/MacOS/$BUNDLE_NAME"
 
+# Translations: the .lproj folders are kept outside the SwiftPM target on purpose
+# (no resource bundle), so macOS finds them straight in Contents/Resources and
+# follows the system language.
+if [ -d "$PACKAGE_DIR/Resources" ]; then
+  for lproj in "$PACKAGE_DIR"/Resources/*.lproj; do
+    [ -d "$lproj" ] || continue
+    cp -R "$lproj" "$APP/Contents/Resources/"
+  done
+fi
+
 cat > "$APP/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -83,11 +93,20 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>0.03</string>
+    <string>0.04</string>
     <key>CFBundleVersion</key>
     <string>1</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
+    <key>CFBundleLocalizations</key>
+    <array>
+        <string>en</string>
+        <string>ru</string>
+        <string>es</string>
+        <string>de</string>
+        <string>fr</string>
+        <string>lv</string>
+    </array>
     <key>LSUIElement</key>
     <true/>
     <key>NSHighResolutionCapable</key>

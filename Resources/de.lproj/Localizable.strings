@@ -1,0 +1,137 @@
+/* MouseImp for macOS - German */
+
+"tab.general" = "Allgemein";
+"tab.advanced" = "Erweitert";
+"tab.diagnostics" = "Diagnose";
+
+"general.intro" = "Lege fest, welche Maustaste DirectScroll startet und wann es pausiert. Alles zur Scrollgeschwindigkeit findest du unter „Erweitert“.";
+"general.trigger" = "Auslöser";
+"general.enabled" = "DirectScroll aktiviert";
+"general.controlType" = "Maustaste:";
+"general.controlTypeHint" = "Diese Taste gedrückt halten und die Maus bewegen – das Fenster unter dem Zeiger scrollt. Bei einer Zusatztaste (Button 4 und höher) bewirkt ein kurzer Druck nichts, damit die Taste keine andere Aktion behält.";
+"general.activateOn" = "Aktivieren mit:";
+"general.disableOn" = "Deaktivieren mit:";
+"button.left" = "Linke Taste";
+"button.right" = "Rechte Taste";
+"button.middle" = "Mittlere Taste";
+"button.extra" = "Taste %d";
+
+"direction.title" = "Richtung";
+"direction.invertX" = "Horizontal umkehren";
+"direction.invertY" = "Vertikal umkehren";
+"direction.snapToAxis" = "Beim Ziehen auf eine Achse sperren";
+"direction.lineScroll" = "Mausrad-Ereignisse zeilenweise senden";
+"direction.footer" = "Standardmäßig folgt der Inhalt dem Zeiger: nach unten ziehen zeigt den früheren Inhalt.";
+
+"cursor.title" = "Zeiger";
+"cursor.hand" = "Zeiger ändern (offene Hand)";
+"cursor.freeze" = "Zeiger beim Ziehen nicht bewegen";
+"cursor.skipScrollbars" = "Drücken auf Bildlaufleisten ignorieren";
+"cursor.dragThreshold" = "Ziehschwelle";
+"cursor.dragThresholdHint" = "Wie weit sich der Zeiger bewegen muss, bis aus dem Drücken ein Scrollen wird.";
+
+"apps.title" = "Apps ohne DirectScroll";
+"apps.remove" = "Entfernen";
+"apps.add" = "App hinzufügen…";
+
+"startup.title" = "Start";
+"startup.launchAtLogin" = "Bei der Anmeldung starten";
+
+"advanced.intro" = "Das Scrollen kann der Hand folgen statt fest zu sein. Wähle einen Modus und stimme die Koeffizienten ab – sie gelten ab dem nächsten Ziehen, du kannst also Werte ausprobieren, ohne etwas neu zu starten.";
+"advanced.speedMode" = "Geschwindigkeitsmodus:";
+"advanced.speedMode.title" = "Geschwindigkeitsmodus";
+"mode.constant.title" = "Konstant";
+"mode.velocity.title" = "Der Hand folgen";
+"mode.distance.title" = "Progressiv";
+"mode.constant.explanation" = "Ein Multiplikator, wie bisher.";
+"mode.velocity.explanation" = "Schnellere Hand, weiteres Scrollen; Beschleunigen gibt einen Zusatz.";
+"mode.distance.explanation" = "Je weiter du vom Druckpunkt wegziehst, desto schneller scrollt es.";
+"mode.constant.detail" = "Derselbe Multiplikator für das ganze Ziehen – das Verhalten früherer Versionen.";
+"mode.velocity.detail" = "Ansprechverhalten und Boost sind die zwei Regler, die die meisten anfassen. Der Rest verfeinert, wie die Geschwindigkeit gemessen wird und wie weit sie steigen darf.";
+"mode.distance.detail" = "Gut, wenn du ein gleichmäßiges, vorhersehbares Gefühl willst: das Scrollen hängt nur davon ab, wie weit du gezogen hast, nicht wie schnell die Hand war.";
+
+"speed.title" = "Geschwindigkeit";
+"speed.base" = "Basisgeschwindigkeit";
+"speed.baseHint" = "Die Geschwindigkeit bei ruhigem Ziehen. Die dynamischen Modi multiplizieren sie.";
+"speed.constantNote" = "Der konstante Modus nutzt immer die Basisgeschwindigkeit; die Koeffizienten unten gehören zu den beiden dynamischen Modi.";
+
+"coef.velocity.title" = "Koeffizienten — Der Hand folgen";
+"coef.response" = "Ansprechverhalten";
+"coef.response.hint" = "Wie stark die Geschwindigkeit der Hand folgt (k_v). 0 behält die Basis, 2 reagiert doppelt so stark.";
+"coef.boost" = "Boost beim Beschleunigen";
+"coef.boost.hint" = "Zusätzliche Geschwindigkeit, während die Hand schneller wird (k_a), aus der Änderung der Zeigergeschwindigkeit. Bremsen verringert das Scrollen nie.";
+"coef.vref" = "Referenzgeschwindigkeit";
+"coef.vref.hint" = "Die als normal betrachtete Zeigergeschwindigkeit in Pixel pro Sekunde. Niedriger reagiert früher.";
+"coef.aref" = "Referenzbeschleunigung";
+"coef.aref.hint" = "Die Beschleunigung, die den vollen Boost bringt, in Pixel pro Sekunde zum Quadrat.";
+"coef.vexp" = "Kurvenexponent";
+"coef.vexp.hint" = "1 ist eine Gerade; unter 1 reagiert früher, über 1 wartet auf schnellere Bewegung.";
+"coef.smooth" = "Glättung";
+"coef.smooth.hint" = "Wie schnell der Multiplikator Änderungen folgt. Niedrig ist ruhig, 1 folgt jedem Schritt.";
+"coef.min" = "Min. Multiplikator";
+"coef.min.hint" = "Langsamer als das wird nie gescrollt, egal was die Hand macht.";
+"coef.max" = "Max. Multiplikator";
+"coef.max.hint" = "Die Obergrenze, damit ein schneller Ruck nicht davonfliegt.";
+
+"coef.distance.title" = "Koeffizienten — Progressiv";
+"coef.ramp" = "Rampe";
+"coef.ramp.hint" = "Wie viel schneller es bei langem Ziehen wird. 0 behält die Basisgeschwindigkeit.";
+"coef.dref" = "Rampen-Distanz";
+"coef.dref.hint" = "Die Entfernung vom Druckpunkt, bei der die Rampe ihre volle Stärke erreicht.";
+"coef.dexp" = "Kurvenexponent";
+"coef.dexp.hint" = "1 wächst gleichmäßig; unter 1 beschleunigt früh, über 1 bleibt zunächst ruhig.";
+"coef.dsmooth.hint" = "Wie schnell der Multiplikator der Entfernung folgt.";
+"coef.dmax.hint" = "Die Obergrenze der Rampe.";
+
+"presets.title" = "Voreinstellungen";
+"presets.gentle" = "Sanft";
+"presets.balanced" = "Ausgewogen";
+"presets.aggressive" = "Aggressiv";
+"presets.defaults" = "Standard";
+"presets.hint" = "Sanft reagiert schwach, Aggressiv folgt der Hand deutlich mehr. Standard setzt diesen Tab zurück (Modus, Koeffizienten und Trägheit) und lässt „Allgemein“ unberührt.";
+
+"live.title" = "Live";
+"live.placeholder" = "noch keine Daten";
+"live.footer" = "Zeigergeschwindigkeit, ihre Änderung und der tatsächlich genutzte Multiplikator des letzten Schritts – praktisch beim Abstimmen der Koeffizienten.";
+"live.format" = "Zeiger %.0f px/s   Änderung %+.0f px/s²   Multiplikator %.2f×";
+
+"inertia.title" = "Trägheit";
+"inertia.enabled" = "Nach dem Loslassen weiterscrollen";
+"inertia.hint" = "Die Trägheit ist unabhängig vom Geschwindigkeitsmodus: Stärke und Schwellen stehen unten.";
+"inertia.friction" = "Reibung";
+"inertia.friction.hint" = "Niedriger lässt das Scrollen früher zur Ruhe kommen.";
+"inertia.start" = "Start-Schwelle";
+"inertia.start.hint" = "Die Zeigergeschwindigkeit beim Loslassen, die die Trägheit startet.";
+"inertia.stop" = "Stopp-Schwelle";
+"inertia.stop.hint" = "Die Trägheit endet, sobald sie darunter fällt.";
+"inertia.window" = "Messfenster";
+"inertia.window.hint" = "Wie weit zurück die Geschwindigkeit beim Loslassen gemessen wird. Kürzer wirkt direkter.";
+"inertia.follows" = "Trägheit folgt dem Geschwindigkeitsmodus";
+"inertia.follows.on" = "Die Trägheit startet mit der Geschwindigkeit, die du gespürt hast, samt dynamischem Boost.";
+"inertia.follows.off" = "Die Trägheit startet nur mit der Basisgeschwindigkeit, egal welcher Modus gewählt ist.";
+
+"diag.intro" = "Live-Zustand des Event-Taps und die Zähler der App, dazu die Werkzeuge für den Fall, dass eine Maustaste oder eine App nicht wie erwartet reagiert.";
+"diag.status.title" = "Status";
+"diag.status.footer" = "Derselbe Text wird einmal pro Sekunde in die Statusdatei geschrieben.";
+"diag.reading" = "lese…";
+"diag.tools.title" = "Werkzeuge";
+"diag.trace" = "Ereignisse 20 s aufzeichnen";
+"diag.testScroll" = "Scrollen unter dem Zeiger testen (3 s)";
+"diag.reveal" = "Statusdatei zeigen";
+"diag.restart" = "Event-Tap neu starten";
+"diag.tools.footer" = "Die Aufzeichnung enthält alle Ereignistypen, die das System liefert, auch die, die die App nicht behandelt – so findet man heraus, was eine ungewöhnliche Maustaste wirklich sendet.";
+
+"menu.enabled" = "DirectScroll aktiviert";
+"menu.settings" = "Einstellungen…";
+"menu.diagnostics" = "Diagnose";
+"menu.permissionRequired" = "Bedienungshilfen-Berechtigung nötig";
+"menu.tapRunning" = "Event-Tap: läuft";
+"menu.tap" = "Event-Tap: %@";
+"menu.eventsSeen" = "Ereignisse: %d, zuletzt: %@";
+"menu.testScroll" = "Scrollen unter dem Zeiger testen (3 s)";
+"menu.trace" = "Ereignisse 20 s aufzeichnen";
+"menu.recheck" = "Berechtigung prüfen / Tap neu starten";
+"menu.openAccessibility" = "Bedienungshilfen öffnen…";
+"menu.launchAtLogin" = "Bei der Anmeldung starten";
+"menu.quit" = "MouseImp beenden";
+"menu.loginFailed.title" = "Anmeldeobjekt konnte nicht geändert werden";

@@ -13,11 +13,11 @@ struct SettingsView: View {
     var body: some View {
         TabView {
             GeneralSettings()
-                .tabItem { Label("General", systemImage: "slider.horizontal.3") }
+                .tabItem { Label("tab.general", systemImage: "slider.horizontal.3") }
             AdvancedSettings()
-                .tabItem { Label("Advanced settings", systemImage: "dial.medium") }
+                .tabItem { Label("tab.advanced", systemImage: "dial.medium") }
             DiagnosticsSettings()
-                .tabItem { Label("Diagnostics", systemImage: "waveform.path.ecg") }
+                .tabItem { Label("tab.diagnostics", systemImage: "waveform.path.ecg") }
         }
         .frame(minWidth: 600, minHeight: 680)
     }
@@ -77,46 +77,45 @@ struct GeneralSettings: View {
 
     var body: some View {
         Form {
-            TabIntro(text: "Choose which mouse button starts DirectScroll and when it stands aside. "
-                + "Everything about scrolling speed lives in the Advanced settings tab.")
+            TabIntro(text: NSLocalizedString("general.intro", comment: ""))
 
             Section {
-                Toggle("DirectScroll enabled", isOn: binding(\.enabled))
-                Picker("Control type:", selection: binding(\.triggerButton)) {
+                Toggle("general.enabled", isOn: binding(\.enabled))
+                Picker("general.controlType", selection: binding(\.triggerButton)) {
                     ForEach(TriggerButton.all) { button in
-                        Text(button.title).tag(button)
+                        Text(button.localizedTitle).tag(button)
                     }
                 }
-                Text("Hold this button and drag to scroll the window under the pointer. For an extra "
-                    + "button (Button 4 and up) a short press does nothing, so the button keeps no other action.")
+                Text("general.controlTypeHint")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                ModifierRow(title: "Activate on:", mask: binding(\.requireModifiers))
-                ModifierRow(title: "Disable on:", mask: binding(\.disableModifiers))
+                ModifierRow(title: NSLocalizedString("general.activateOn", comment: ""), mask: binding(\.requireModifiers))
+                ModifierRow(title: NSLocalizedString("general.disableOn", comment: ""), mask: binding(\.disableModifiers))
             } header: {
-                Text("Trigger")
+                Text("general.trigger")
             }
 
             Section {
-                Toggle("Inverted horizontal", isOn: binding(\.invertX))
-                Toggle("Inverted vertical", isOn: binding(\.invertY))
-                Toggle("Lock to one axis while dragging", isOn: binding(\.snapToAxis))
-                Toggle("Send line based wheel events", isOn: binding(\.lineScroll))
+                Toggle("direction.invertX", isOn: binding(\.invertX))
+                Toggle("direction.invertY", isOn: binding(\.invertY))
+                Toggle("direction.snapToAxis", isOn: binding(\.snapToAxis))
+                Toggle("direction.lineScroll", isOn: binding(\.lineScroll))
             } header: {
-                Text("Direction")
+                Text("direction.title")
             } footer: {
-                Text("By default the content follows the pointer: drag down to see earlier content.")
+                Text("direction.footer")
                     .font(.caption)
             }
 
             Section {
-                Toggle("Change cursor (open hand)", isOn: binding(\.showHandCursor))
-                Toggle("Do not move the pointer while dragging", isOn: binding(\.freezeCursor))
-                Toggle("Ignore presses on scroll bars", isOn: binding(\.skipScrollbars))
-                SliderRow(title: "Drag threshold", hint: "How far the pointer must move before a press becomes a scroll.",
+                Toggle("cursor.hand", isOn: binding(\.showHandCursor))
+                Toggle("cursor.freeze", isOn: binding(\.freezeCursor))
+                Toggle("cursor.skipScrollbars", isOn: binding(\.skipScrollbars))
+                SliderRow(title: NSLocalizedString("cursor.dragThreshold", comment: ""),
+                          hint: NSLocalizedString("cursor.dragThresholdHint", comment: ""),
                           value: binding(\.dragThreshold), range: 0...20, step: 1, format: "%.0f px")
             } header: {
-                Text("Cursor")
+                Text("cursor.title")
             }
 
             Section {
@@ -124,17 +123,17 @@ struct GeneralSettings: View {
                     HStack {
                         Text(bundle).font(.system(.body, design: .monospaced))
                         Spacer()
-                        Button("Remove") { store.toggleBundle(bundle, disabled: false) }
+                        Button("apps.remove") { store.toggleBundle(bundle, disabled: false) }
                             .buttonStyle(.link)
                     }
                 }
-                Button("Add application…") { addApplication() }
+                Button("apps.add") { addApplication() }
             } header: {
-                Text("Applications without DirectScroll")
+                Text("apps.title")
             }
 
             Section {
-                Toggle("Launch at login", isOn: $loginAtStart)
+                Toggle("startup.launchAtLogin", isOn: $loginAtStart)
                     .onChange(of: loginAtStart) { newValue in
                         do {
                             try LoginItem.set(newValue)
@@ -148,7 +147,7 @@ struct GeneralSettings: View {
                     Text(loginError).font(.caption).foregroundStyle(.red)
                 }
             } header: {
-                Text("Startup")
+                Text("startup.title")
             }
         }
         .formStyle(.grouped)
@@ -185,7 +184,7 @@ struct GeneralSettings: View {
 
 struct AdvancedSettings: View {
     @EnvironmentObject private var store: SettingsStore
-    @State private var liveLine = "no data yet"
+    @State private var liveLine = NSLocalizedString("live.placeholder", comment: "")
     private let liveTimer = Timer.publish(every: 0.5, on: .main, in: .common).autoconnect()
 
     private static let minSpeed = 0.2
@@ -193,11 +192,10 @@ struct AdvancedSettings: View {
 
     var body: some View {
         Form {
-            TabIntro(text: "Scrolling can follow your hand instead of staying fixed. Pick a mode, then tune the "
-                + "coefficients - they apply from the next drag, so you can try a value without restarting anything.")
+            TabIntro(text: NSLocalizedString("advanced.intro", comment: ""))
 
             Section {
-                Picker("Speed mode:", selection: binding(\.speedMode)) {
+                Picker("advanced.speedMode", selection: binding(\.speedMode)) {
                     ForEach(SpeedMode.allCases) { mode in
                         Text(mode.title).tag(mode)
                     }
@@ -207,93 +205,104 @@ struct AdvancedSettings: View {
                     .font(.callout)
                     .foregroundStyle(.secondary)
                 if store.value.speedMode != .constant {
-                    Text(modeDetail(store.value.speedMode))
+                    Text(store.value.speedMode.detail)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             } header: {
-                Text("Speed mode")
+                Text("advanced.speedMode.title")
             }
 
             Section {
                 HStack {
-                    Text("Base speed")
+                    Text("speed.base")
                     Slider(value: speedBinding, in: log10(Self.minSpeed)...log10(Self.maxSpeed))
                     Text(String(format: "%.2f×", store.value.speed))
                         .monospacedDigit()
                         .foregroundStyle(.secondary)
                         .frame(width: 60, alignment: .trailing)
                 }
-                Text("The speed at a normal, unhurried drag. The dynamic modes multiply this.")
+                Text("speed.baseHint")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {
-                Text("Speed")
+                Text("speed.title")
             }
 
             switch store.value.speedMode {
             case .constant:
                 Section {
-                    Text("Constant mode always uses the base speed; the coefficients below belong to the two "
-                        + "dynamic modes.")
+                    Text("speed.constantNote")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
 
             case .velocity:
                 Section {
-                    SliderRow(title: "Response", hint: "How strongly the speed follows the hand (k_v). 0 keeps the base speed, 2 reacts twice as much.",
+                    SliderRow(title: NSLocalizedString("coef.response", comment: ""),
+                              hint: NSLocalizedString("coef.response.hint", comment: ""),
                               value: binding(\.velocityResponse), range: 0...5)
-                    SliderRow(title: "Boost while accelerating", hint: "Extra speed while the hand speeds up (k_a), taken from the change of the pointer speed. Slowing down never reduces the scroll.",
+                    SliderRow(title: NSLocalizedString("coef.boost", comment: ""),
+                              hint: NSLocalizedString("coef.boost.hint", comment: ""),
                               value: binding(\.accelerationBoost), range: 0...5)
-                    SliderRow(title: "Reference speed", hint: "The pointer speed treated as \"normal\", in pixels per second. Lower makes the mode react earlier.",
+                    SliderRow(title: NSLocalizedString("coef.vref", comment: ""),
+                              hint: NSLocalizedString("coef.vref.hint", comment: ""),
                               value: binding(\.velocityReference), range: 100...3000, step: 50, format: "%.0f px/s")
-                    SliderRow(title: "Reference acceleration", hint: "The acceleration that earns the full boost, in pixels per second squared.",
+                    SliderRow(title: NSLocalizedString("coef.aref", comment: ""),
+                              hint: NSLocalizedString("coef.aref.hint", comment: ""),
                               value: binding(\.accelerationReference), range: 500...30000, step: 250, format: "%.0f px/s²")
-                    SliderRow(title: "Curve exponent", hint: "1 is a straight line; below 1 reacts earlier, above 1 waits for faster movement.",
+                    SliderRow(title: NSLocalizedString("coef.vexp", comment: ""),
+                              hint: NSLocalizedString("coef.vexp.hint", comment: ""),
                               value: binding(\.velocityExponent), range: 0.2...2, step: 0.05)
-                    SliderRow(title: "Smoothing", hint: "How quickly the multiplier follows changes. Low is calm, 1 follows every step.",
+                    SliderRow(title: NSLocalizedString("coef.smooth", comment: ""),
+                              hint: NSLocalizedString("coef.smooth.hint", comment: ""),
                               value: binding(\.dynamicSmoothing), range: 0.05...1, step: 0.05)
-                    SliderRow(title: "Min multiplier", hint: "Never scroll slower than this, whatever the hand does.",
+                    SliderRow(title: NSLocalizedString("coef.min", comment: ""),
+                              hint: NSLocalizedString("coef.min.hint", comment: ""),
                               value: binding(\.minMultiplier), range: 0.05...1, step: 0.05)
-                    SliderRow(title: "Max multiplier", hint: "The ceiling, so a fast flick cannot fly off.",
+                    SliderRow(title: NSLocalizedString("coef.max", comment: ""),
+                              hint: NSLocalizedString("coef.max.hint", comment: ""),
                               value: binding(\.maxMultiplier), range: 1...20, step: 0.5)
                 } header: {
-                    Text("Coefficients — Follow the hand")
+                    Text("coef.velocity.title")
                 }
 
             case .distance:
                 Section {
-                    SliderRow(title: "Ramp", hint: "How much faster it gets on a long drag. 0 keeps the base speed.",
+                    SliderRow(title: NSLocalizedString("coef.ramp", comment: ""),
+                              hint: NSLocalizedString("coef.ramp.hint", comment: ""),
                               value: binding(\.distanceRamp), range: 0...10, step: 0.1)
-                    SliderRow(title: "Ramp distance", hint: "The distance from where you pressed at which the ramp is at full strength.",
+                    SliderRow(title: NSLocalizedString("coef.dref", comment: ""),
+                              hint: NSLocalizedString("coef.dref.hint", comment: ""),
                               value: binding(\.distanceReference), range: 50...1500, step: 25, format: "%.0f px")
-                    SliderRow(title: "Curve exponent", hint: "1 grows steadily; below 1 speeds up early, above 1 stays calm at first.",
+                    SliderRow(title: NSLocalizedString("coef.dexp", comment: ""),
+                              hint: NSLocalizedString("coef.dexp.hint", comment: ""),
                               value: binding(\.distanceExponent), range: 0.2...2, step: 0.05)
-                    SliderRow(title: "Smoothing", hint: "How quickly the multiplier follows the distance.",
+                    SliderRow(title: NSLocalizedString("coef.smooth", comment: ""),
+                              hint: NSLocalizedString("coef.dsmooth.hint", comment: ""),
                               value: binding(\.dynamicSmoothing), range: 0.05...1, step: 0.05)
-                    SliderRow(title: "Max multiplier", hint: "The ceiling for the ramp.",
+                    SliderRow(title: NSLocalizedString("coef.max", comment: ""),
+                              hint: NSLocalizedString("coef.dmax.hint", comment: ""),
                               value: binding(\.maxMultiplier), range: 1...20, step: 0.5)
                 } header: {
-                    Text("Coefficients — Progressive")
+                    Text("coef.distance.title")
                 }
             }
 
             Section {
                 HStack {
-                    Button("Gentle") { applyPreset(.gentle) }
-                    Button("Balanced") { applyPreset(.balanced) }
-                    Button("Aggressive") { applyPreset(.aggressive) }
+                    Button("presets.gentle") { applyPreset(.gentle) }
+                    Button("presets.balanced") { applyPreset(.balanced) }
+                    Button("presets.aggressive") { applyPreset(.aggressive) }
                     Spacer()
-                    Button("Defaults") { apply(defaults: Settings()) }
+                    Button("presets.defaults") { apply(defaults: Settings()) }
                 }
-                Text("Gentle reacts softly, Aggressive follows the hand much more. Defaults resets this tab "
-                    + "(speed mode, coefficients and inertia) and leaves the General tab alone.")
+                Text("presets.hint")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {
-                Text("Presets")
+                Text("presets.title")
             }
 
             Section {
@@ -301,52 +310,42 @@ struct AdvancedSettings: View {
                     .font(.system(.body, design: .monospaced))
                     .foregroundStyle(.secondary)
             } header: {
-                Text("Live")
+                Text("live.title")
             } footer: {
-                Text("Pointer speed, its change and the multiplier that was actually used on the last scroll step - "
-                    + "handy while tuning the coefficients.")
+                Text("live.footer")
                     .font(.caption)
             }
 
             Section {
-                Toggle("Keep scrolling after release", isOn: binding(\.coastEnabled))
-                Text("Inertia is independent from the speed mode: it has its own strength and thresholds below.")
+                Toggle("inertia.enabled", isOn: binding(\.coastEnabled))
+                Text("inertia.hint")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                SliderRow(title: "Friction", hint: "Lower makes the scroll settle sooner.",
+                SliderRow(title: NSLocalizedString("inertia.friction", comment: ""),
+                          hint: NSLocalizedString("inertia.friction.hint", comment: ""),
                           value: binding(\.coastFactor), range: 0.2...0.95, step: 0.01)
-                SliderRow(title: "Start threshold", hint: "The pointer speed at release that starts inertia.",
+                SliderRow(title: NSLocalizedString("inertia.start", comment: ""),
+                          hint: NSLocalizedString("inertia.start.hint", comment: ""),
                           value: binding(\.coastStartVelocity), range: 10...2000, step: 10, format: "%.0f px/s")
-                SliderRow(title: "Stop threshold", hint: "Inertia stops once it slows below this.",
+                SliderRow(title: NSLocalizedString("inertia.stop", comment: ""),
+                          hint: NSLocalizedString("inertia.stop.hint", comment: ""),
                           value: binding(\.coastStopVelocity), range: 5...1000, step: 5, format: "%.0f px/s")
-                SliderRow(title: "Velocity window", hint: "How far back the release speed is measured. Shorter feels more immediate.",
+                SliderRow(title: NSLocalizedString("inertia.window", comment: ""),
+                          hint: NSLocalizedString("inertia.window.hint", comment: ""),
                           value: binding(\.coastVelocityWindow), range: 0.03...0.4, step: 0.01, format: "%.2f s")
-                Toggle("Coast follows the speed mode", isOn: binding(\.coastFollowsSpeedMode))
-                Text(store.value.coastFollowsSpeedMode
-                     ? "Inertia starts from the speed you felt, including the dynamic boost."
-                     : "Inertia starts from the base speed only, whatever mode is selected.")
+                Toggle("inertia.follows", isOn: binding(\.coastFollowsSpeedMode))
+                Text(NSLocalizedString(store.value.coastFollowsSpeedMode
+                     ? "inertia.follows.on"
+                     : "inertia.follows.off", comment: ""))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             } header: {
-                Text("Inertia")
+                Text("inertia.title")
             }
         }
         .formStyle(.grouped)
         .onReceive(liveTimer) { _ in
             liveLine = AppActions.shared.speedLine()
-        }
-    }
-
-    private func modeDetail(_ mode: SpeedMode) -> String {
-        switch mode {
-        case .constant:
-            return "Same multiplier for the whole drag - the behaviour of earlier versions."
-        case .velocity:
-            return "Response and Boost are the two knobs most people touch. Everything else refines how the "
-                + "speed is measured and how far it is allowed to go."
-        case .distance:
-            return "Good when you want a steady, predictable feel: the scroll depends only on how far you dragged, "
-                + "not on how fast your hand moved."
         }
     }
 
@@ -443,36 +442,34 @@ struct DiagnosticsSettings: View {
 
     var body: some View {
         Form {
-            TabIntro(text: "Live state of the event tap and the numbers the app keeps, plus the tools to use when a "
-                + "mouse button or an application does not do what you expect.")
+            TabIntro(text: NSLocalizedString("diag.intro", comment: ""))
 
             Section {
-                Text(statusText.isEmpty ? "reading…" : statusText)
+                Text(statusText.isEmpty ? NSLocalizedString("diag.reading", comment: "") : statusText)
                     .font(.system(.caption, design: .monospaced))
                     .foregroundStyle(.secondary)
                     .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
             } header: {
-                Text("Status")
+                Text("diag.status.title")
             } footer: {
-                Text("The same text is written to the status file once a second.")
+                Text("diag.status.footer")
                     .font(.caption)
             }
 
             Section {
-                Button("Trace events for 20 s") { AppActions.shared.traceEvents() }
-                Button("Test scroll under pointer (3 s)") { AppActions.shared.testScroll() }
-                Button("Reveal status file") {
+                Button("diag.trace") { AppActions.shared.traceEvents() }
+                Button("diag.testScroll") { AppActions.shared.testScroll() }
+                Button("diag.reveal") {
                     let path = AppActions.shared.statusFilePath()
                     guard !path.isEmpty else { return }
                     NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
                 }
-                Button("Restart event tap") { AppActions.shared.restartTap() }
+                Button("diag.restart") { AppActions.shared.restartTap() }
             } header: {
-                Text("Tools")
+                Text("diag.tools.title")
             } footer: {
-                Text("The trace records every event type the system delivers, including the ones the app does not "
-                    + "handle - that is how you find out what an unusual mouse button actually sends.")
+                Text("diag.tools.footer")
                     .font(.caption)
             }
         }

@@ -352,6 +352,14 @@ click through.
   grant it while the app runs, and macOS does not notify about it, so polling is the
   simple correct answer: there is no notification for it, so polling is the only
   reliable way to notice.
+* **Localisation**: the strings live outside the SwiftPM target, in
+  `Resources/<lang>.lproj/Localizable.strings`, and `build-app.sh` copies those
+  folders into `Contents/Resources` (with `CFBundleLocalizations` listing them), so
+  `Bundle.main` finds them without a resource bundle and macOS picks the language the
+  user has. The UI uses localised names (`TriggerButton.localizedTitle`,
+  `SpeedMode.title`), while the diagnostics keep the technical ones
+  (`TriggerButton.title`, event type names) and the whole status file stays English:
+  it exists to be pasted into a bug report.
 * **Event posting has its own permission** on 10.15+ (`CGPreflightPostEventAccess` /
   `CGRequestPostEventAccess`). The app checks it and says so in the menu; with the
   Accessibility grant posting works, but a user who only granted the event posting

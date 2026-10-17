@@ -27,12 +27,24 @@ struct TriggerButton: Codable, Hashable, Identifiable {
     /// The buttons offered in the settings picker.
     static let all: [TriggerButton] = [.left, .right, .middle, .button4, .button5, .button6, .button7]
 
+    /// Technical name, used in the diagnostics and the post log (never localized).
     var title: String {
         switch number {
         case 0: return "Left button"
         case 1: return "Right button"
         case 2: return "Middle button"
         default: return "Button \(number + 1)"
+        }
+    }
+
+    /// Name shown in the settings window.
+    var localizedTitle: String {
+        switch number {
+        case 0: return NSLocalizedString("button.left", comment: "")
+        case 1: return NSLocalizedString("button.right", comment: "")
+        case 2: return NSLocalizedString("button.middle", comment: "")
+        default:
+            return String(format: NSLocalizedString("button.extra", comment: ""), number + 1)
         }
     }
 
@@ -121,24 +133,10 @@ enum SpeedMode: String, Codable, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
-    var title: String {
-        switch self {
-        case .constant: return "Constant"
-        case .velocity: return "Follow the hand"
-        case .distance: return "Progressive"
-        }
-    }
-
-    var explanation: String {
-        switch self {
-        case .constant:
-            return "One multiplier, as before."
-        case .velocity:
-            return "Faster hand, further scroll; accelerating adds a boost."
-        case .distance:
-            return "The further you drag from the start, the faster it scrolls."
-        }
-    }
+    var title: String { NSLocalizedString("mode.\(rawValue).title", comment: "") }
+    var explanation: String { NSLocalizedString("mode.\(rawValue).explanation", comment: "") }
+    /// A second, longer sentence shown under the picker for the dynamic modes.
+    var detail: String { NSLocalizedString("mode.\(rawValue).detail", comment: "") }
 }
 
 struct Settings: Codable, Equatable {

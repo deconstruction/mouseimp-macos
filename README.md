@@ -45,6 +45,14 @@ app with *"Apple could not verify …"*. To allow it:
 
 Then grant the permissions the app asks for (see below).
 
+## Languages
+
+The interface follows the system language. English, Russian, Spanish, German, French
+and Latvian are included; the strings live in `Resources/<language>.lproj/Localizable.strings`
+and the build script copies them into the app bundle, so another language is one more
+folder. The diagnostics file and the post log stay English on purpose - they are meant
+to be pasted into a bug report.
+
 ## Requirements
 
 * macOS 13 or newer (Apple silicon or Intel).
@@ -208,6 +216,7 @@ Every design decision is analysed in
 ```
 ├── Package.swift                 SwiftPM package (no Xcode project)
 ├── Notes/design.md               design notes: decisions, alternatives
+├── Resources/<lang>.lproj/       Localizable.strings per language
 ├── Scripts/build-app.sh          builds and signs MouseImp.app
 ├── Scripts/make-dmg.sh           packs the release disk image
 ├── Scripts/make-signing-identity.sh   optional stable signing certificate

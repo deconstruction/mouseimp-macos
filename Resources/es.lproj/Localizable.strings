@@ -1,0 +1,137 @@
+/* MouseImp for macOS - Spanish */
+
+"tab.general" = "General";
+"tab.advanced" = "Ajustes avanzados";
+"tab.diagnostics" = "Diagnóstico";
+
+"general.intro" = "Elige qué botón del ratón activa DirectScroll y cuándo no debe hacerlo. Todo lo relacionado con la velocidad está en la pestaña de ajustes avanzados.";
+"general.trigger" = "Activación";
+"general.enabled" = "DirectScroll activado";
+"general.controlType" = "Botón:";
+"general.controlTypeHint" = "Mantén pulsado este botón y mueve el ratón para desplazar la ventana que está bajo el puntero. Con un botón extra (Button 4 y siguientes) una pulsación corta no hace nada, así que el botón no conserva otra acción.";
+"general.activateOn" = "Activar con:";
+"general.disableOn" = "Desactivar con:";
+"button.left" = "Botón izquierdo";
+"button.right" = "Botón derecho";
+"button.middle" = "Botón central";
+"button.extra" = "Botón %d";
+
+"direction.title" = "Dirección";
+"direction.invertX" = "Invertir horizontal";
+"direction.invertY" = "Invertir vertical";
+"direction.snapToAxis" = "Bloquear en un solo eje al arrastrar";
+"direction.lineScroll" = "Enviar eventos de rueda por líneas";
+"direction.footer" = "Por defecto el contenido sigue al puntero: arrastra hacia abajo para ver lo anterior.";
+
+"cursor.title" = "Cursor";
+"cursor.hand" = "Cambiar el cursor (mano abierta)";
+"cursor.freeze" = "No mover el puntero al arrastrar";
+"cursor.skipScrollbars" = "Ignorar pulsaciones en las barras de desplazamiento";
+"cursor.dragThreshold" = "Umbral de arrastre";
+"cursor.dragThresholdHint" = "Cuánto debe moverse el puntero antes de que una pulsación se convierta en desplazamiento.";
+
+"apps.title" = "Aplicaciones sin DirectScroll";
+"apps.remove" = "Quitar";
+"apps.add" = "Añadir aplicación…";
+
+"startup.title" = "Inicio";
+"startup.launchAtLogin" = "Abrir al iniciar sesión";
+
+"advanced.intro" = "El desplazamiento puede seguir tu mano en lugar de ser fijo. Elige un modo y ajusta los coeficientes: se aplican en el siguiente arrastre, así que puedes probar un valor sin reiniciar nada.";
+"advanced.speedMode" = "Modo de velocidad:";
+"advanced.speedMode.title" = "Modo de velocidad";
+"mode.constant.title" = "Constante";
+"mode.velocity.title" = "Sigue la mano";
+"mode.distance.title" = "Progresivo";
+"mode.constant.explanation" = "Un multiplicador, como antes.";
+"mode.velocity.explanation" = "Cuanto más rápido muevas la mano, más desplazamiento; acelerar añade un impulso.";
+"mode.distance.explanation" = "Cuanto más te alejas del punto de pulsación, más rápido se desplaza.";
+"mode.constant.detail" = "El mismo multiplicador durante todo el arrastre: el comportamiento de las versiones anteriores.";
+"mode.velocity.detail" = "Respuesta e Impulso son los dos ajustes que casi todos tocan. Lo demás define cómo se mide la velocidad y cuánto puede crecer.";
+"mode.distance.detail" = "Va bien cuando quieres una sensación estable y predecible: el desplazamiento depende solo de cuánto arrastraste, no de la velocidad de tu mano.";
+
+"speed.title" = "Velocidad";
+"speed.base" = "Velocidad base";
+"speed.baseHint" = "La velocidad con un arrastre normal y tranquilo. Los modos dinámicos la multiplican.";
+"speed.constantNote" = "El modo constante usa siempre la velocidad base; los coeficientes de abajo pertenecen a los dos modos dinámicos.";
+
+"coef.velocity.title" = "Coeficientes — Sigue la mano";
+"coef.response" = "Respuesta";
+"coef.response.hint" = "Cuánto sigue la velocidad a la mano (k_v). 0 mantiene la velocidad base, 2 reacciona el doble.";
+"coef.boost" = "Impulso al acelerar";
+"coef.boost.hint" = "Velocidad extra mientras la mano acelera (k_a), tomada del cambio de velocidad del puntero. Frenar nunca reduce el desplazamiento.";
+"coef.vref" = "Velocidad de referencia";
+"coef.vref.hint" = "La velocidad del puntero considerada normal, en píxeles por segundo. Más baja hace que el modo reaccione antes.";
+"coef.aref" = "Aceleración de referencia";
+"coef.aref.hint" = "La aceleración que obtiene el impulso completo, en píxeles por segundo al cuadrado.";
+"coef.vexp" = "Exponente de la curva";
+"coef.vexp.hint" = "1 es una línea recta; menos de 1 reacciona antes, más de 1 espera a un movimiento más rápido.";
+"coef.smooth" = "Suavizado";
+"coef.smooth.hint" = "Con qué rapidez el multiplicador sigue los cambios. Bajo es tranquilo, 1 sigue cada paso.";
+"coef.min" = "Multiplicador mínimo";
+"coef.min.hint" = "Nunca se desplazará más despacio que esto, haga lo que haga la mano.";
+"coef.max" = "Multiplicador máximo";
+"coef.max.hint" = "El techo, para que un movimiento brusco no se dispare.";
+
+"coef.distance.title" = "Coeficientes — Progresivo";
+"coef.ramp" = "Rampa";
+"coef.ramp.hint" = "Cuánto más rápido se vuelve en un arrastre largo. 0 mantiene la velocidad base.";
+"coef.dref" = "Distancia de rampa";
+"coef.dref.hint" = "La distancia desde el punto de pulsación en la que la rampa alcanza su fuerza máxima.";
+"coef.dexp" = "Exponente de la curva";
+"coef.dexp.hint" = "1 crece de forma constante; menos de 1 acelera pronto, más de 1 empieza tranquilo.";
+"coef.dsmooth.hint" = "Con qué rapidez el multiplicador sigue la distancia.";
+"coef.dmax.hint" = "El techo de la rampa.";
+
+"presets.title" = "Ajustes predefinidos";
+"presets.gentle" = "Suave";
+"presets.balanced" = "Equilibrado";
+"presets.aggressive" = "Agresivo";
+"presets.defaults" = "Predeterminados";
+"presets.hint" = "Suave reacciona poco, Agresivo sigue la mano mucho más. Predeterminados restablece esta pestaña (modo, coeficientes e inercia) y no toca la pestaña General.";
+
+"live.title" = "En vivo";
+"live.placeholder" = "aún sin datos";
+"live.footer" = "Velocidad del puntero, su cambio y el multiplicador que se usó realmente en el último paso: útil mientras ajustas los coeficientes.";
+"live.format" = "puntero %.0f px/s   cambio %+.0f px/s²   multiplicador %.2f×";
+
+"inertia.title" = "Inercia";
+"inertia.enabled" = "Seguir desplazando al soltar";
+"inertia.hint" = "La inercia es independiente del modo de velocidad: tiene su propia fuerza y sus umbrales aquí abajo.";
+"inertia.friction" = "Rozamiento";
+"inertia.friction.hint" = "Más bajo hace que se detenga antes.";
+"inertia.start" = "Umbral de inicio";
+"inertia.start.hint" = "La velocidad del puntero al soltar que inicia la inercia.";
+"inertia.stop" = "Umbral de parada";
+"inertia.stop.hint" = "La inercia se detiene cuando baja de este valor.";
+"inertia.window" = "Ventana de medición";
+"inertia.window.hint" = "Cuánto atrás se mide la velocidad al soltar. Más corto se siente más inmediato.";
+"inertia.follows" = "La inercia sigue el modo de velocidad";
+"inertia.follows.on" = "La inercia parte de la velocidad que sentiste, incluido el impulso dinámico.";
+"inertia.follows.off" = "La inercia parte solo de la velocidad base, sea cual sea el modo elegido.";
+
+"diag.intro" = "Estado en vivo de la captura de eventos y los contadores de la aplicación, además de las herramientas para cuando un botón del ratón o una aplicación no se comportan como esperas.";
+"diag.status.title" = "Estado";
+"diag.status.footer" = "Este mismo texto se escribe en el archivo de estado una vez por segundo.";
+"diag.reading" = "leyendo…";
+"diag.tools.title" = "Herramientas";
+"diag.trace" = "Registrar eventos 20 s";
+"diag.testScroll" = "Probar el desplazamiento bajo el puntero (3 s)";
+"diag.reveal" = "Mostrar el archivo de estado";
+"diag.restart" = "Reiniciar la captura de eventos";
+"diag.tools.footer" = "El registro guarda todos los tipos de eventos que entrega el sistema, incluidos los que la aplicación no maneja: así se descubre qué envía realmente un botón poco habitual.";
+
+"menu.enabled" = "DirectScroll activado";
+"menu.settings" = "Ajustes…";
+"menu.diagnostics" = "Diagnóstico";
+"menu.permissionRequired" = "Se necesita permiso de accesibilidad";
+"menu.tapRunning" = "Captura de eventos: activa";
+"menu.tap" = "Captura de eventos: %@";
+"menu.eventsSeen" = "Eventos vistos: %d, último: %@";
+"menu.testScroll" = "Probar el desplazamiento bajo el puntero (3 s)";
+"menu.trace" = "Registrar eventos 20 s";
+"menu.recheck" = "Revisar el permiso / reiniciar la captura";
+"menu.openAccessibility" = "Abrir Accesibilidad…";
+"menu.launchAtLogin" = "Abrir al iniciar sesión";
+"menu.quit" = "Salir de MouseImp";
+"menu.loginFailed.title" = "No se pudo cambiar el inicio automático";

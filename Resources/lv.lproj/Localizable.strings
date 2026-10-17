@@ -1,0 +1,137 @@
+/* MouseImp for macOS - Latvian */
+
+"tab.general" = "Vispārīgi";
+"tab.advanced" = "Papildu iestatījumi";
+"tab.diagnostics" = "Diagnostika";
+
+"general.intro" = "Izvēlieties, kura peles poga ieslēdz DirectScroll un kad tas nestrādā. Viss par ritināšanas ātrumu ir papildu iestatījumu cilnē.";
+"general.trigger" = "Iedarbināšana";
+"general.enabled" = "DirectScroll ieslēgts";
+"general.controlType" = "Peles poga:";
+"general.controlTypeHint" = "Turiet šo pogu un kustiniet peli — ritināsies logs zem kursora. Papildu pogai (Button 4 un tālāk) īss nospiedums neko nedara, tāpēc pogai nepaliek cita darbība.";
+"general.activateOn" = "Ieslēgt ar:";
+"general.disableOn" = "Izslēgt ar:";
+"button.left" = "Kreisā poga";
+"button.right" = "Labā poga";
+"button.middle" = "Vidējā poga";
+"button.extra" = "Poga %d";
+
+"direction.title" = "Virziens";
+"direction.invertX" = "Invertēt horizontāli";
+"direction.invertY" = "Invertēt vertikāli";
+"direction.snapToAxis" = "Bloķēt uz vienas ass vilkšanas laikā";
+"direction.lineScroll" = "Sūtīt ritenīša notikumus pa rindām";
+"direction.footer" = "Pēc noklusējuma saturs seko kursoram: velciet uz leju, lai redzētu iepriekšējo saturu.";
+
+"cursor.title" = "Kursors";
+"cursor.hand" = "Mainīt kursoru (atvērta plauksta)";
+"cursor.freeze" = "Nepārvietot kursoru vilkšanas laikā";
+"cursor.skipScrollbars" = "Ignorēt nospiedumus uz ritjoslām";
+"cursor.dragThreshold" = "Vilkšanas slieksnis";
+"cursor.dragThresholdHint" = "Cik tālu kursoram jāpārvietojas, lai nospiedums kļūtu par ritināšanu.";
+
+"apps.title" = "Lietotnes bez DirectScroll";
+"apps.remove" = "Noņemt";
+"apps.add" = "Pievienot lietotni…";
+
+"startup.title" = "Startēšana";
+"startup.launchAtLogin" = "Palaist piesakoties";
+
+"advanced.intro" = "Ritināšana var sekot rokai, nevis būt fiksēta. Izvēlieties režīmu un pielāgojiet koeficientus — tie stājas spēkā no nākamās vilkšanas, tāpēc vērtību var izmēģināt, neko nepārstartējot.";
+"advanced.speedMode" = "Ātruma režīms:";
+"advanced.speedMode.title" = "Ātruma režīms";
+"mode.constant.title" = "Konstants";
+"mode.velocity.title" = "Sekot rokai";
+"mode.distance.title" = "Progresīvs";
+"mode.constant.explanation" = "Viens reizinātājs, kā iepriekš.";
+"mode.velocity.explanation" = "Ātrāka roka — tālāka ritināšana; paātrinājums pievieno papildu ātrumu.";
+"mode.distance.explanation" = "Jo tālāk velciet no nospieduma vietas, jo ātrāk ritina.";
+"mode.constant.detail" = "Viens un tas pats reizinātājs visai vilkšanai — iepriekšējo versiju uzvedība.";
+"mode.velocity.detail" = "Biežāk groza divus sliedņus: atsaucību un paātrinājuma bonusu. Pārējais precizē, kā ātrums tiek mērīts un cik tālu tas drīkst augt.";
+"mode.distance.detail" = "Der, ja gribas vienmērīgu, paredzamu sajūtu: ritināšana atkarīga tikai no vilkšanas attāluma, nevis rokas ātruma.";
+
+"speed.title" = "Ātrums";
+"speed.base" = "Pamata ātrums";
+"speed.baseHint" = "Ātrums mierīgas vilkšanas laikā. Dinamiskie režīmi to reizina.";
+"speed.constantNote" = "Konstantajā režīmā vienmēr izmanto pamata ātrumu; zemāk esošie koeficienti attiecas uz diviem dinamiskajiem režīmiem.";
+
+"coef.velocity.title" = "Koeficienti — Sekot rokai";
+"coef.response" = "Atsaucība";
+"coef.response.hint" = "Cik stipri ātrums seko rokai (k_v). 0 — paliek pamata ātrums, 2 — reaģē divreiz stiprāk.";
+"coef.boost" = "Paātrinājuma bonuss";
+"coef.boost.hint" = "Papildu ātrums, kamēr roka paātrinās (k_a), ņemts no kursora ātruma izmaiņas. Bremzēšana ritināšanu nekad nesamazina.";
+"coef.vref" = "Atsauces ātrums";
+"coef.vref.hint" = "Kursora ātrums, kas uzskatāms par normālu, pikseļos sekundē. Zemāks — režīms reaģē agrāk.";
+"coef.aref" = "Atsauces paātrinājums";
+"coef.aref.hint" = "Paātrinājums, kas dod pilnu bonusu, pikseļos sekundē kvadrātā.";
+"coef.vexp" = "Līknes eksponents";
+"coef.vexp.hint" = "1 — taisna līnija; zem 1 reaģē agrāk, virs 1 gaida ātrāku kustību.";
+"coef.smooth" = "Izlīdzināšana";
+"coef.smooth.hint" = "Cik ātri reizinātājs seko izmaiņām. Zems — mierīgi, 1 — seko katram solim.";
+"coef.min" = "Minimālais reizinātājs";
+"coef.min.hint" = "Lēnāk par šo ritināšana nekad nebūs, lai ko darītu roka.";
+"coef.max" = "Maksimālais reizinātājs";
+"coef.max.hint" = "Griesti, lai straujš rāviens neaizlido pārāk tālu.";
+
+"coef.distance.title" = "Koeficienti — Progresīvs";
+"coef.ramp" = "Rampa";
+"coef.ramp.hint" = "Cik daudz ātrāk ritina garā vilkšanā. 0 — paliek pamata ātrums.";
+"coef.dref" = "Rampas attālums";
+"coef.dref.hint" = "Attālums no nospieduma vietas, kurā rampa sasniedz pilnu spēku.";
+"coef.dexp" = "Līknes eksponents";
+"coef.dexp.hint" = "1 — aug vienmērīgi; zem 1 paātrinās agri, virs 1 sākumā ir mierīgs.";
+"coef.dsmooth.hint" = "Cik ātri reizinātājs seko attālumam.";
+"coef.dmax.hint" = "Rampas griesti.";
+
+"presets.title" = "Priekšiestatījumi";
+"presets.gentle" = "Maigs";
+"presets.balanced" = "Sabalansēts";
+"presets.aggressive" = "Agresīvs";
+"presets.defaults" = "Noklusējums";
+"presets.hint" = "«Maigs» reaģē vāji, «Agresīvs» seko rokai daudz stiprāk. «Noklusējums» atiestata šo cilni (režīmu, koeficientus un inerci), «Vispārīgi» cilni neaiztiekot.";
+
+"live.title" = "Tiešraidē";
+"live.placeholder" = "vēl nav datu";
+"live.footer" = "Kursora ātrums, tā izmaiņa un reizinātājs, kas faktiski izmantots pēdējā solī — noderīgi, pielāgojot koeficientus.";
+"live.format" = "kursors %.0f px/s   izmaiņa %+.0f px/s²   reizinātājs %.2f×";
+
+"inertia.title" = "Inerce";
+"inertia.enabled" = "Turpināt ritināt pēc atlaišanas";
+"inertia.hint" = "Inerce nav atkarīga no ātruma režīma: tās stiprums un sliekšņi ir zemāk.";
+"inertia.friction" = "Berze";
+"inertia.friction.hint" = "Zemāka — ritināšana apstājas agrāk.";
+"inertia.start" = "Sākuma slieksnis";
+"inertia.start.hint" = "Kursora ātrums atlaišanas brīdī, kas sāk inerci.";
+"inertia.stop" = "Apstāšanās slieksnis";
+"inertia.stop.hint" = "Inerce apstājas, kad palēninās zem šīs vērtības.";
+"inertia.window" = "Mērījuma logs";
+"inertia.window.hint" = "Cik tālu atpakaļ mēra ātrumu atlaišanas brīdī. Īsāks — jūtams tiešāk.";
+"inertia.follows" = "Inerce seko ātruma režīmam";
+"inertia.follows.on" = "Inerce sākas ar ātrumu, ko jūtat, ieskaitot dinamisko bonusu.";
+"inertia.follows.off" = "Inerce sākas tikai ar pamata ātrumu, neatkarīgi no izvēlētā režīma.";
+
+"diag.intro" = "Notikumu pārtveršanas tiešraides stāvoklis un lietotnes skaitītāji, kā arī rīki gadījumiem, kad peles poga vai lietotne nedarbojas kā gaidīts.";
+"diag.status.title" = "Stāvoklis";
+"diag.status.footer" = "Tas pats teksts reizi sekundē tiek ierakstīts stāvokļa failā.";
+"diag.reading" = "lasu…";
+"diag.tools.title" = "Rīki";
+"diag.trace" = "Ierakstīt notikumus 20 s";
+"diag.testScroll" = "Pārbaudīt ritināšanu zem kursora (3 s)";
+"diag.reveal" = "Parādīt stāvokļa failu";
+"diag.restart" = "Pārstartēt notikumu pārtveršanu";
+"diag.tools.footer" = "Ieraksts satur visus sistēmas piegādātos notikumu tipus, arī tos, ko lietotne neapstrādā — tā var noskaidrot, ko īsti sūta neparasta peles poga.";
+
+"menu.enabled" = "DirectScroll ieslēgts";
+"menu.settings" = "Iestatījumi…";
+"menu.diagnostics" = "Diagnostika";
+"menu.permissionRequired" = "Nepieciešama piekļūstamības atļauja";
+"menu.tapRunning" = "Notikumu pārtveršana: darbojas";
+"menu.tap" = "Notikumu pārtveršana: %@";
+"menu.eventsSeen" = "Notikumi: %d, pēdējais: %@";
+"menu.testScroll" = "Pārbaudīt ritināšanu zem kursora (3 s)";
+"menu.trace" = "Ierakstīt notikumus 20 s";
+"menu.recheck" = "Pārbaudīt atļauju / pārstartēt pārtveršanu";
+"menu.openAccessibility" = "Atvērt piekļūstamības iestatījumus…";
+"menu.launchAtLogin" = "Palaist piesakoties";
+"menu.quit" = "Aizvērt MouseImp";
+"menu.loginFailed.title" = "Neizdevās mainīt palaišanu piesakoties";

@@ -54,9 +54,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         AppActions.shared.statusFilePath = { Diagnostics.shared.path }
         AppActions.shared.statusText = { [weak self] in self?.statusText() ?? "" }
         AppActions.shared.speedLine = { [weak self] in
-            guard let self else { return "no data yet" }
+            guard let self else { return NSLocalizedString("live.placeholder", comment: "") }
             let stats = self.engine.stats
-            return String(format: "pointer %.0f px/s   change %+.0f px/s²   multiplier %.2f×",
+            return String(format: NSLocalizedString("live.format", comment: ""),
                           stats.lastVelocity, stats.lastAcceleration, stats.lastMultiplier)
         }
 
@@ -139,14 +139,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
 
-        let toggle = NSMenuItem(title: "DirectScroll enabled",
+        let toggle = NSMenuItem(title: NSLocalizedString("menu.enabled", comment: ""),
                                 action: #selector(toggleEnabled), keyEquivalent: "")
         toggle.target = self
         toggle.state = store.value.enabled ? .on : .off
         toggle.tag = 1
         menu.addItem(toggle)
 
-        let settings = NSMenuItem(title: "Settings…", action: #selector(openSettings), keyEquivalent: ",")
+        let settings = NSMenuItem(title: NSLocalizedString("menu.settings", comment: ""), action: #selector(openSettings), keyEquivalent: ",")
         settings.target = self
         menu.addItem(settings)
 
@@ -156,21 +156,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         status.tag = 2
         menu.addItem(status)
 
-        let diagnostics = NSMenuItem(title: "Diagnostics", action: nil, keyEquivalent: "")
+        let diagnostics = NSMenuItem(title: NSLocalizedString("menu.diagnostics", comment: ""), action: nil, keyEquivalent: "")
         let submenu = NSMenu()
         let info = NSMenuItem(title: diagnosticsLine(), action: nil, keyEquivalent: "")
         info.tag = 3
         submenu.addItem(info)
-        let test = NSMenuItem(title: "Test scroll under pointer (3 s)", action: #selector(testScroll), keyEquivalent: "")
+        let test = NSMenuItem(title: NSLocalizedString("menu.testScroll", comment: ""), action: #selector(testScroll), keyEquivalent: "")
         test.target = self
         submenu.addItem(test)
-        let trace = NSMenuItem(title: "Trace events for 20 s", action: #selector(traceEvents), keyEquivalent: "")
+        let trace = NSMenuItem(title: NSLocalizedString("menu.trace", comment: ""), action: #selector(traceEvents), keyEquivalent: "")
         trace.target = self
         submenu.addItem(trace)
-        let refreshItem = NSMenuItem(title: "Re-check permission / restart tap", action: #selector(restartTap), keyEquivalent: "")
+        let refreshItem = NSMenuItem(title: NSLocalizedString("menu.recheck", comment: ""), action: #selector(restartTap), keyEquivalent: "")
         refreshItem.target = self
         submenu.addItem(refreshItem)
-        let openPane = NSMenuItem(title: "Open Accessibility settings…", action: #selector(openAccessibilityPane), keyEquivalent: "")
+        let openPane = NSMenuItem(title: NSLocalizedString("menu.openAccessibility", comment: ""), action: #selector(openAccessibilityPane), keyEquivalent: "")
         openPane.target = self
         submenu.addItem(openPane)
         diagnostics.submenu = submenu
@@ -178,14 +178,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(.separator())
 
-        let login = NSMenuItem(title: "Launch at login", action: #selector(toggleLoginItem), keyEquivalent: "")
+        let login = NSMenuItem(title: NSLocalizedString("menu.launchAtLogin", comment: ""), action: #selector(toggleLoginItem), keyEquivalent: "")
         login.target = self
         login.state = LoginItem.isEnabled ? .on : .off
         login.tag = 4
         menu.addItem(login)
 
         menu.addItem(.separator())
-        let quit = NSMenuItem(title: "Quit MouseImp", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        let quit = NSMenuItem(title: NSLocalizedString("menu.quit", comment: ""), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         menu.addItem(quit)
         return menu
     }
@@ -200,16 +200,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func statusLine() -> String {
-        if !Probes.isTrusted { return "Accessibility permission required" }
+        if !Probes.isTrusted { return NSLocalizedString("menu.permissionRequired", comment: "") }
         // Note: CGPreflightPostEventAccess() can stay false while Accessibility is
         // granted (the grant covers posting), so it is reported in the status file
         // but must not gate the running state here - it misled us once.
-        return tap.status.isRunning ? "Event tap: running" : "Event tap: \(tap.status.description)"
+        return tap.status.isRunning
+            ? NSLocalizedString("menu.tapRunning", comment: "")
+            : String(format: NSLocalizedString("menu.tap", comment: ""), tap.status.description)
     }
 
     private func diagnosticsLine() -> String {
         let d = tap.diagnostics
-        return "Events seen: \(d.events), last: \(eventName(d.lastType))"
+        return String(format: NSLocalizedString("menu.eventsSeen", comment: ""),
+                      Int32(truncatingIfNeeded: d.events), eventName(d.lastType))
     }
 
     private func eventName(_ type: CGEventType) -> String {
@@ -250,6 +253,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lines.append("mouseimp status")
         lines.append("updated: \(Self.timestamp())")
         lines.append("enabled: \(s.enabled)")
+        lines.append("language: \(Bundle.main.preferredLocalizations.first ?? "?") of \(Array(Set(Bundle.main.localizations)).sorted().joined(separator: ","))")
         lines.append("trigger: \(s.triggerButton.title)")
         lines.append("modifiers: require=\(s.requireModifiers.label) disable=\(s.disableModifiers.label) slow=\(s.slowModifiers.label)")
         lines.append("speed: \(String(format: "%.2f", s.speed)) mode=\(s.speedMode.rawValue)"
@@ -356,7 +360,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             try LoginItem.set(!LoginItem.isEnabled)
         } catch {
             let alert = NSAlert()
-            alert.messageText = "Could not change the login item"
+            alert.messageText = NSLocalizedString("menu.loginFailed.title", comment: "")
             alert.informativeText = error.localizedDescription
             alert.runModal()
         }

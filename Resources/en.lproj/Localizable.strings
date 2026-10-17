@@ -1,0 +1,143 @@
+/* MouseImp for macOS - base (English) strings.
+   Everything the user sees is listed here; the other languages mirror these keys. */
+
+/* Tabs */
+"tab.general" = "General";
+"tab.advanced" = "Advanced settings";
+"tab.diagnostics" = "Diagnostics";
+
+/* General tab */
+"general.intro" = "Choose which mouse button starts DirectScroll and when it stands aside. Everything about scrolling speed lives in the Advanced settings tab.";
+"general.trigger" = "Trigger";
+"general.enabled" = "DirectScroll enabled";
+"general.controlType" = "Control type:";
+"general.controlTypeHint" = "Hold this button and drag to scroll the window under the pointer. With an extra button (Button 4 and up) a short press does nothing, so the button keeps no other action.";
+"general.activateOn" = "Activate on:";
+"general.disableOn" = "Disable on:";
+"button.left" = "Left button";
+"button.right" = "Right button";
+"button.middle" = "Middle button";
+"button.extra" = "Button %d";
+
+"direction.title" = "Direction";
+"direction.invertX" = "Inverted horizontal";
+"direction.invertY" = "Inverted vertical";
+"direction.snapToAxis" = "Lock to one axis while dragging";
+"direction.lineScroll" = "Send line based wheel events";
+"direction.footer" = "By default the content follows the pointer: drag down to see earlier content.";
+
+"cursor.title" = "Cursor";
+"cursor.hand" = "Change cursor (open hand)";
+"cursor.freeze" = "Do not move the pointer while dragging";
+"cursor.skipScrollbars" = "Ignore presses on scroll bars";
+"cursor.dragThreshold" = "Drag threshold";
+"cursor.dragThresholdHint" = "How far the pointer must move before a press becomes a scroll.";
+
+"apps.title" = "Applications without DirectScroll";
+"apps.remove" = "Remove";
+"apps.add" = "Add application…";
+
+"startup.title" = "Startup";
+"startup.launchAtLogin" = "Launch at login";
+
+/* Advanced tab */
+"advanced.intro" = "Scrolling can follow your hand instead of staying fixed. Pick a mode, then tune the coefficients - they apply from the next drag, so you can try a value without restarting anything.";
+"advanced.speedMode" = "Speed mode:";
+"advanced.speedMode.title" = "Speed mode";
+"mode.constant.title" = "Constant";
+"mode.velocity.title" = "Follow the hand";
+"mode.distance.title" = "Progressive";
+"mode.constant.explanation" = "One multiplier, as before.";
+"mode.velocity.explanation" = "Faster hand, further scroll; accelerating adds a boost.";
+"mode.distance.explanation" = "The further you drag from the start, the faster it scrolls.";
+"mode.constant.detail" = "Same multiplier for the whole drag - the behaviour of earlier versions.";
+"mode.velocity.detail" = "Response and Boost are the two knobs most people touch. Everything else refines how the speed is measured and how far it is allowed to go.";
+"mode.distance.detail" = "Good when you want a steady, predictable feel: the scroll depends only on how far you dragged, not on how fast your hand moved.";
+
+"speed.title" = "Speed";
+"speed.base" = "Base speed";
+"speed.baseHint" = "The speed at a normal, unhurried drag. The dynamic modes multiply this.";
+"speed.constantNote" = "Constant mode always uses the base speed; the coefficients below belong to the two dynamic modes.";
+
+"coef.velocity.title" = "Coefficients — Follow the hand";
+"coef.response" = "Response";
+"coef.response.hint" = "How strongly the speed follows the hand (k_v). 0 keeps the base speed, 2 reacts twice as much.";
+"coef.boost" = "Boost while accelerating";
+"coef.boost.hint" = "Extra speed while the hand speeds up (k_a), taken from the change of the pointer speed. Slowing down never reduces the scroll.";
+"coef.vref" = "Reference speed";
+"coef.vref.hint" = "The pointer speed treated as normal, in pixels per second. Lower makes the mode react earlier.";
+"coef.aref" = "Reference acceleration";
+"coef.aref.hint" = "The acceleration that earns the full boost, in pixels per second squared.";
+"coef.vexp" = "Curve exponent";
+"coef.vexp.hint" = "1 is a straight line; below 1 reacts earlier, above 1 waits for faster movement.";
+"coef.smooth" = "Smoothing";
+"coef.smooth.hint" = "How quickly the multiplier follows changes. Low is calm, 1 follows every step.";
+"coef.min" = "Min multiplier";
+"coef.min.hint" = "Never scroll slower than this, whatever the hand does.";
+"coef.max" = "Max multiplier";
+"coef.max.hint" = "The ceiling, so a fast flick cannot fly off.";
+
+"coef.distance.title" = "Coefficients — Progressive";
+"coef.ramp" = "Ramp";
+"coef.ramp.hint" = "How much faster it gets on a long drag. 0 keeps the base speed.";
+"coef.dref" = "Ramp distance";
+"coef.dref.hint" = "The distance from where you pressed at which the ramp is at full strength.";
+"coef.dexp" = "Curve exponent";
+"coef.dexp.hint" = "1 grows steadily; below 1 speeds up early, above 1 stays calm at first.";
+"coef.dsmooth.hint" = "How quickly the multiplier follows the distance.";
+"coef.dmax.hint" = "The ceiling for the ramp.";
+
+"presets.title" = "Presets";
+"presets.gentle" = "Gentle";
+"presets.balanced" = "Balanced";
+"presets.aggressive" = "Aggressive";
+"presets.defaults" = "Defaults";
+"presets.hint" = "Gentle reacts softly, Aggressive follows the hand much more. Defaults resets this tab (speed mode, coefficients and inertia) and leaves the General tab alone.";
+
+"live.title" = "Live";
+"live.placeholder" = "no data yet";
+"live.footer" = "Pointer speed, its change and the multiplier that was actually used on the last scroll step - handy while tuning the coefficients.";
+"live.format" = "pointer %.0f px/s   change %+.0f px/s²   multiplier %.2f×";
+
+"inertia.title" = "Inertia";
+"inertia.enabled" = "Keep scrolling after release";
+"inertia.hint" = "Inertia is independent from the speed mode: it has its own strength and thresholds below.";
+"inertia.friction" = "Friction";
+"inertia.friction.hint" = "Lower makes the scroll settle sooner.";
+"inertia.start" = "Start threshold";
+"inertia.start.hint" = "The pointer speed at release that starts inertia.";
+"inertia.stop" = "Stop threshold";
+"inertia.stop.hint" = "Inertia stops once it slows below this.";
+"inertia.window" = "Velocity window";
+"inertia.window.hint" = "How far back the release speed is measured. Shorter feels more immediate.";
+"inertia.follows" = "Coast follows the speed mode";
+"inertia.follows.on" = "Inertia starts from the speed you felt, including the dynamic boost.";
+"inertia.follows.off" = "Inertia starts from the base speed only, whatever mode is selected.";
+
+/* Diagnostics tab */
+"diag.intro" = "Live state of the event tap and the numbers the app keeps, plus the tools to use when a mouse button or an application does not do what you expect.";
+"diag.status.title" = "Status";
+"diag.status.footer" = "The same text is written to the status file once a second.";
+"diag.reading" = "reading…";
+"diag.tools.title" = "Tools";
+"diag.trace" = "Trace events for 20 s";
+"diag.testScroll" = "Test scroll under pointer (3 s)";
+"diag.reveal" = "Reveal status file";
+"diag.restart" = "Restart event tap";
+"diag.tools.footer" = "The trace records every event type the system delivers, including the ones the app does not handle - that is how you find out what an unusual mouse button actually sends.";
+
+/* Menu bar */
+"menu.enabled" = "DirectScroll enabled";
+"menu.settings" = "Settings…";
+"menu.diagnostics" = "Diagnostics";
+"menu.permissionRequired" = "Accessibility permission required";
+"menu.tapRunning" = "Event tap: running";
+"menu.tap" = "Event tap: %@";
+"menu.eventsSeen" = "Events seen: %d, last: %@";
+"menu.testScroll" = "Test scroll under pointer (3 s)";
+"menu.trace" = "Trace events for 20 s";
+"menu.recheck" = "Re-check permission / restart tap";
+"menu.openAccessibility" = "Open Accessibility settings…";
+"menu.launchAtLogin" = "Launch at login";
+"menu.quit" = "Quit MouseImp";
+"menu.loginFailed.title" = "Could not change the login item";

@@ -1,0 +1,137 @@
+/* MouseImp for macOS - French */
+
+"tab.general" = "Général";
+"tab.advanced" = "Réglages avancés";
+"tab.diagnostics" = "Diagnostic";
+
+"general.intro" = "Choisissez le bouton de souris qui déclenche DirectScroll et quand il reste en retrait. Tout ce qui concerne la vitesse se trouve dans l’onglet des réglages avancés.";
+"general.trigger" = "Déclenchement";
+"general.enabled" = "DirectScroll activé";
+"general.controlType" = "Bouton :";
+"general.controlTypeHint" = "Maintenez ce bouton et déplacez la souris pour faire défiler la fenêtre sous le pointeur. Avec un bouton supplémentaire (Button 4 et au-delà), un appui court ne fait rien : le bouton ne garde donc aucune autre action.";
+"general.activateOn" = "Activer avec :";
+"general.disableOn" = "Désactiver avec :";
+"button.left" = "Bouton gauche";
+"button.right" = "Bouton droit";
+"button.middle" = "Bouton central";
+"button.extra" = "Bouton %d";
+
+"direction.title" = "Direction";
+"direction.invertX" = "Inverser l’horizontale";
+"direction.invertY" = "Inverser la verticale";
+"direction.snapToAxis" = "Verrouiller sur un axe pendant le glissement";
+"direction.lineScroll" = "Envoyer les événements de molette par lignes";
+"direction.footer" = "Par défaut le contenu suit le pointeur : glissez vers le bas pour voir ce qui précède.";
+
+"cursor.title" = "Curseur";
+"cursor.hand" = "Changer le curseur (main ouverte)";
+"cursor.freeze" = "Ne pas déplacer le pointeur pendant le glissement";
+"cursor.skipScrollbars" = "Ignorer les appuis sur les barres de défilement";
+"cursor.dragThreshold" = "Seuil de glissement";
+"cursor.dragThresholdHint" = "Distance que le pointeur doit parcourir pour qu’un appui devienne un défilement.";
+
+"apps.title" = "Applications sans DirectScroll";
+"apps.remove" = "Retirer";
+"apps.add" = "Ajouter une application…";
+
+"startup.title" = "Démarrage";
+"startup.launchAtLogin" = "Ouvrir à l’ouverture de session";
+
+"advanced.intro" = "Le défilement peut suivre votre main au lieu d’être fixe. Choisissez un mode, puis réglez les coefficients : ils s’appliquent au glissement suivant, vous pouvez donc essayer une valeur sans rien redémarrer.";
+"advanced.speedMode" = "Mode de vitesse :";
+"advanced.speedMode.title" = "Mode de vitesse";
+"mode.constant.title" = "Constant";
+"mode.velocity.title" = "Suivre la main";
+"mode.distance.title" = "Progressif";
+"mode.constant.explanation" = "Un seul multiplicateur, comme avant.";
+"mode.velocity.explanation" = "Plus la main va vite, plus ça défile ; accélérer ajoute un bonus.";
+"mode.distance.explanation" = "Plus vous vous éloignez du point d’appui, plus ça défile vite.";
+"mode.constant.detail" = "Le même multiplicateur pendant tout le glissement : le comportement des versions précédentes.";
+"mode.velocity.detail" = "Réactivité et Bonus sont les deux réglages que l’on touche le plus. Le reste précise comment la vitesse est mesurée et jusqu’où elle peut monter.";
+"mode.distance.detail" = "Pratique quand vous voulez une sensation régulière et prévisible : le défilement ne dépend que de la distance parcourue, pas de la vitesse de la main.";
+
+"speed.title" = "Vitesse";
+"speed.base" = "Vitesse de base";
+"speed.baseHint" = "La vitesse pour un glissement normal et tranquille. Les modes dynamiques la multiplient.";
+"speed.constantNote" = "Le mode constant utilise toujours la vitesse de base ; les coefficients ci-dessous concernent les deux modes dynamiques.";
+
+"coef.velocity.title" = "Coefficients — Suivre la main";
+"coef.response" = "Réactivité";
+"coef.response.hint" = "À quel point la vitesse suit la main (k_v). 0 garde la vitesse de base, 2 réagit deux fois plus.";
+"coef.boost" = "Bonus en accélération";
+"coef.boost.hint" = "Vitesse supplémentaire pendant que la main accélère (k_a), tirée de la variation de la vitesse du pointeur. Ralentir ne réduit jamais le défilement.";
+"coef.vref" = "Vitesse de référence";
+"coef.vref.hint" = "La vitesse du pointeur considérée comme normale, en pixels par seconde. Plus basse, le mode réagit plus tôt.";
+"coef.aref" = "Accélération de référence";
+"coef.aref.hint" = "L’accélération qui donne le bonus complet, en pixels par seconde au carré.";
+"coef.vexp" = "Exposant de la courbe";
+"coef.vexp.hint" = "1 est une ligne droite ; en dessous de 1 réagit plus tôt, au-dessus attend un mouvement plus rapide.";
+"coef.smooth" = "Lissage";
+"coef.smooth.hint" = "À quelle vitesse le multiplicateur suit les changements. Bas est calme, 1 suit chaque étape.";
+"coef.min" = "Multiplicateur mini";
+"coef.min.hint" = "Le défilement n’ira jamais plus lentement, quoi que fasse la main.";
+"coef.max" = "Multiplicateur maxi";
+"coef.max.hint" = "Le plafond, pour qu’un geste rapide ne s’emballe pas.";
+
+"coef.distance.title" = "Coefficients — Progressif";
+"coef.ramp" = "Rampe";
+"coef.ramp.hint" = "De combien ça accélère sur un long glissement. 0 garde la vitesse de base.";
+"coef.dref" = "Distance de rampe";
+"coef.dref.hint" = "La distance depuis le point d’appui à laquelle la rampe atteint sa pleine force.";
+"coef.dexp" = "Exposant de la courbe";
+"coef.dexp.hint" = "1 croît régulièrement ; en dessous de 1 accélère tôt, au-dessus reste calme au début.";
+"coef.dsmooth.hint" = "À quelle vitesse le multiplicateur suit la distance.";
+"coef.dmax.hint" = "Le plafond de la rampe.";
+
+"presets.title" = "Préréglages";
+"presets.gentle" = "Doux";
+"presets.balanced" = "Équilibré";
+"presets.aggressive" = "Agressif";
+"presets.defaults" = "Par défaut";
+"presets.hint" = "Doux réagit faiblement, Agressif suit beaucoup plus la main. Par défaut réinitialise cet onglet (mode, coefficients et inertie) et laisse l’onglet Général intact.";
+
+"live.title" = "En direct";
+"live.placeholder" = "pas encore de données";
+"live.footer" = "Vitesse du pointeur, sa variation et le multiplicateur réellement utilisé à la dernière étape — pratique pour régler les coefficients.";
+"live.format" = "pointeur %.0f px/s   variation %+.0f px/s²   multiplicateur %.2f×";
+
+"inertia.title" = "Inertie";
+"inertia.enabled" = "Continuer à défiler après le relâchement";
+"inertia.hint" = "L’inertie est indépendante du mode de vitesse : sa force et ses seuils sont ci-dessous.";
+"inertia.friction" = "Frottement";
+"inertia.friction.hint" = "Plus bas, le défilement s’arrête plus tôt.";
+"inertia.start" = "Seuil de départ";
+"inertia.start.hint" = "La vitesse du pointeur au relâchement qui déclenche l’inertie.";
+"inertia.stop" = "Seuil d’arrêt";
+"inertia.stop.hint" = "L’inertie s’arrête dès qu’elle descend sous cette valeur.";
+"inertia.window" = "Fenêtre de mesure";
+"inertia.window.hint" = "Sur quelle durée la vitesse au relâchement est mesurée. Plus court est plus immédiat.";
+"inertia.follows" = "L’inertie suit le mode de vitesse";
+"inertia.follows.on" = "L’inertie part de la vitesse que vous avez ressentie, bonus dynamique compris.";
+"inertia.follows.off" = "L’inertie part uniquement de la vitesse de base, quel que soit le mode choisi.";
+
+"diag.intro" = "État en direct de la capture d’événements et compteurs de l’application, plus les outils à utiliser quand un bouton de souris ou une application ne réagit pas comme prévu.";
+"diag.status.title" = "État";
+"diag.status.footer" = "Ce même texte est écrit dans le fichier d’état une fois par seconde.";
+"diag.reading" = "lecture…";
+"diag.tools.title" = "Outils";
+"diag.trace" = "Enregistrer les événements 20 s";
+"diag.testScroll" = "Tester le défilement sous le pointeur (3 s)";
+"diag.reveal" = "Afficher le fichier d’état";
+"diag.restart" = "Redémarrer la capture d’événements";
+"diag.tools.footer" = "L’enregistrement contient tous les types d’événements livrés par le système, y compris ceux que l’application ne traite pas : c’est ainsi qu’on découvre ce qu’envoie réellement un bouton inhabituel.";
+
+"menu.enabled" = "DirectScroll activé";
+"menu.settings" = "Réglages…";
+"menu.diagnostics" = "Diagnostic";
+"menu.permissionRequired" = "Autorisation d’accessibilité requise";
+"menu.tapRunning" = "Capture d’événements : active";
+"menu.tap" = "Capture d’événements : %@";
+"menu.eventsSeen" = "Événements : %d, dernier : %@";
+"menu.testScroll" = "Tester le défilement sous le pointeur (3 s)";
+"menu.trace" = "Enregistrer les événements 20 s";
+"menu.recheck" = "Vérifier l’autorisation / redémarrer";
+"menu.openAccessibility" = "Ouvrir Accessibilité…";
+"menu.launchAtLogin" = "Ouvrir à l’ouverture de session";
+"menu.quit" = "Quitter MouseImp";
+"menu.loginFailed.title" = "Impossible de modifier l’ouverture automatique";
