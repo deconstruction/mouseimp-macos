@@ -21,8 +21,10 @@ final class ScrollEngine {
     private enum AxisLock { case none, horizontal, vertical }
 
     private struct Sample {
-        var dx: Double = 0
-        var dy: Double = 0
+        var wheelDx: Double = 0
+        var wheelDy: Double = 0
+        /// Dynamic multiplier that was applied to this step (1 in `.constant`).
+        var dynamic: Double = 1
         var time: CFTimeInterval = 0
     }
 
@@ -53,6 +55,16 @@ final class ScrollEngine {
     private var samples = [Sample](repeating: Sample(), count: 24)
     private var sampleIndex = 0
 
+    // Dynamic speed state (reset at the start of every gesture).
+    private var velocitySmoothed: Double = 0
+    private var previousVelocitySmoothed: Double = 0
+    private var accelerationSmoothed: Double = 0
+    private var multiplierSmoothed: Double = 1
+    private var lastEventTimestamp: UInt64 = 0
+    /// Settings as they were when the current gesture started. The whole gesture
+    /// uses these, so a change made while dragging cannot alter it half way through.
+    private var gestureSettings: Settings?
+
     private var coastTimer: DispatchSourceTimer?
     private var coastVelocity: CGPoint = .zero
     private var coastMomentumActive = false
@@ -76,6 +88,12 @@ final class ScrollEngine {
         var passedThrough: [Int64: Int] = [:]
         var lastGrab: String = "-"
         var lastScroll: String = "-"
+        /// Last computed dynamics, for the live readout and the status file.
+        var lastVelocity: Double = 0
+        var lastAcceleration: Double = 0
+        var lastMultiplier: Double = 1
+        /// Velocity the last inertia started with (points per second).
+        var lastCoastVelocity: CGPoint = .zero
         /// Why a press did not start a grab, e.g. "notTriggerButton" or "ownApp".
         var rejects: [String: Int] = [:]
     }
@@ -132,7 +150,7 @@ final class ScrollEngine {
             // Escape cancels a running grab, any key stops coasting.
             stopCoast(momentumEnd: true)
             if phase == .grabbing, event.getIntegerValueField(.keyboardEventKeycode) == 53 {
-                finishGrab(coast: false)
+                finishGrab(coast: false, settings: gestureSettings ?? snapshot())
                 return nil
             }
             return event
@@ -232,16 +250,17 @@ final class ScrollEngine {
 
     private func mouseDragged(type: CGEventType, event: CGEvent) -> CGEvent? {
         guard phase != .idle, type == trigger.draggedType else { return event }
-        let s = snapshot()
         let point = event.location
 
         if phase == .pressed {
+            let s = snapshot()
             let travel = hypot(point.x - anchor.x, point.y - anchor.y)
             guard travel >= s.dragThreshold else { return nil }
             beginGrab(settings: s)
         }
 
-        applyDrag(to: point, flags: event.flags, settings: s)
+        let s = gestureSettings ?? snapshot()
+        applyDrag(to: point, flags: event.flags, timestamp: event.timestamp, settings: s)
         return nil
     }
 
@@ -249,7 +268,7 @@ final class ScrollEngine {
 
     private func mouseUp(type: CGEventType, event: CGEvent) -> CGEvent? {
         guard phase != .idle, type == trigger.upType else { return event }
-        let s = snapshot()
+        let s = gestureSettings ?? snapshot()
 
         switch phase {
         case .pressed:
@@ -270,7 +289,7 @@ final class ScrollEngine {
             }
             phase = .idle
         case .grabbing:
-            finishGrab(coast: s.coastEnabled)
+            finishGrab(coast: s.coastEnabled, settings: s)
         case .idle:
             break
         }
@@ -281,6 +300,7 @@ final class ScrollEngine {
 
     private func beginGrab(settings s: Settings) {
         phase = .grabbing
+        gestureSettings = s
         accX = 0
         accY = 0
         travelX = 0
@@ -288,6 +308,11 @@ final class ScrollEngine {
         axisLock = .none
         lastPoint = anchor
         pointerFrozen = false
+        velocitySmoothed = 0
+        previousVelocitySmoothed = 0
+        accelerationSmoothed = 0
+        multiplierSmoothed = 1
+        lastEventTimestamp = 0
 
         updateStats { stats in
             stats.grabs += 1
@@ -302,22 +327,30 @@ final class ScrollEngine {
         onGrabChanged?(true, anchor)
     }
 
-    private func finishGrab(coast: Bool) {
+    private func finishGrab(coast: Bool, settings s: Settings) {
         phase = .idle
+        gestureSettings = nil
         if pointerFrozen {
             poster.postMouseMoved(to: anchor)
             pointerFrozen = false
         }
         onGrabChanged?(false, anchor)
 
-        if coast, let velocity = recentVelocity() {
-            startCoast(velocity: velocity, settings: snapshot())
+        if coast, let velocity = recentVelocity(settings: s) {
+            updateStats { $0.lastCoastVelocity = velocity }
+            startCoast(velocity: velocity, settings: s)
         }
+    }
+
+    /// Stops any inertia that is running. Used by the tests, which would otherwise
+    /// keep getting momentum events after a case has finished.
+    func stopInertia() {
+        stopCoast(momentumEnd: true)
     }
 
     // MARK: - The drag to scroll conversion
 
-    private func applyDrag(to point: CGPoint, flags eventFlags: CGEventFlags, settings s: Settings) {
+    private func applyDrag(to point: CGPoint, flags eventFlags: CGEventFlags, timestamp: UInt64, settings s: Settings) {
         // Pointer movement in screen coordinates (y grows downwards).
         var dxP = point.x - lastPoint.x
         var dyP = point.y - lastPoint.y
@@ -343,12 +376,23 @@ final class ScrollEngine {
         travelX += dxP
         travelY += dyP
 
+        // How the speed follows the drag, if the user asked for it. The base speed
+        // and the slow down key stay independent of it.
+        let dt = stepInterval(from: timestamp)
+        lastEventTimestamp = timestamp
+        let dynamic = dynamicMultiplier(pointerDistance: hypot(dxP, dyP), dt: dt, settings: s)
+        updateStats { stats in
+            stats.lastVelocity = velocitySmoothed
+            stats.lastAcceleration = accelerationSmoothed
+            stats.lastMultiplier = dynamic
+        }
+
         // Clamp defensively: the settings offer 0.2x .. 10x, but a hand edited
         // preference or an old value must not be able to produce an absurd
         // multiplier.
         let speed = min(max(s.speed, 0.05), 10.0)
-        var dx = dxP * speed
-        var dy = dyP * speed
+        var dx = dxP * speed * dynamic
+        var dy = dyP * speed * dynamic
         if s.invertX { dx = -dx }
         if s.invertY { dy = -dy }
 
@@ -385,13 +429,71 @@ final class ScrollEngine {
 
         if poster.postScroll(dx: wheelX, dy: wheelY, lines: s.lineScroll) {
             lastScrollTime = CFAbsoluteTimeGetCurrent()
-            record(dx: wheelX, dy: wheelY)
+            record(dx: wheelX, dy: wheelY, dynamic: dynamic)
             let description = String(format: "dx=%.1f dy=%.1f", wheelX, wheelY)
             updateStats { stats in
                 stats.scrolls += 1
                 stats.lastScroll = description
             }
         }
+    }
+
+    // MARK: - Dynamic speed
+
+    /// Seconds since the previous drag event, from the event timestamps. Falls back
+    /// to a nominal frame when they are missing, and is clamped so a stalled tap
+    /// cannot produce a gigantic acceleration term.
+    private func stepInterval(from timestamp: UInt64) -> Double {
+        guard lastEventTimestamp > 0, timestamp > lastEventTimestamp else { return 1.0 / 120.0 }
+        let dt = Double(timestamp - lastEventTimestamp) / 1_000_000_000
+        return min(max(dt, 0.001), 0.05)
+    }
+
+    /// The multiplier that makes the scroll follow the drag; `1` in `.constant`.
+    ///
+    /// `v` is the pointer speed and `a` its derivative, both EMA smoothed, and the
+    /// response is `1 + k_v·(v/v_ref)^p + k_a·clamp(a/a_ref, 0, 1)`. Only positive
+    /// acceleration adds anything: slowing the hand simply returns to the base
+    /// speed instead of undershooting. `.distance` uses the distance from the point
+    /// where the drag started. The clamp is applied before the smoothing, so noise
+    /// cannot leak past the user's limits.
+    private func dynamicMultiplier(pointerDistance: Double, dt: Double, settings s: Settings) -> Double {
+        switch s.speedMode {
+        case .constant:
+            multiplierSmoothed = 1
+            return 1
+
+        case .velocity:
+            let velocity = dt > 0 ? pointerDistance / dt : 0
+            velocitySmoothed += (velocity - velocitySmoothed) * 0.3
+            let acceleration = dt > 0 ? (velocitySmoothed - previousVelocitySmoothed) / dt : 0
+            previousVelocitySmoothed = velocitySmoothed
+            accelerationSmoothed += (acceleration - accelerationSmoothed) * 0.2
+
+            let referenceSpeed = max(s.velocityReference, 1)
+            let exponent = max(s.velocityExponent, 0.05)
+            let velocityTerm = max(s.velocityResponse, 0)
+                * pow(max(velocitySmoothed, 0) / referenceSpeed, exponent)
+            let boostTerm = max(s.accelerationBoost, 0)
+                * min(max(accelerationSmoothed / max(s.accelerationReference, 1), 0), 1)
+            return smoothMultiplier(1 + velocityTerm + boostTerm, settings: s)
+
+        case .distance:
+            let distance = hypot(travelX, travelY)
+            let reference = max(s.distanceReference, 1)
+            let ramp = max(s.distanceRamp, 0)
+                * pow(min(distance / reference, 4), max(s.distanceExponent, 0.05))
+            return smoothMultiplier(1 + ramp, settings: s)
+        }
+    }
+
+    /// Clamp into the user's range, then ease towards it so one noisy step cannot
+    /// jerk the scroll.
+    private func smoothMultiplier(_ raw: Double, settings s: Settings) -> Double {
+        let clamped = min(max(raw, max(s.minMultiplier, 0.05)), max(s.maxMultiplier, 0.1))
+        let alpha = min(max(s.dynamicSmoothing, 0.01), 1)
+        multiplierSmoothed += (clamped - multiplierSmoothed) * alpha
+        return multiplierSmoothed
     }
 
     private func updateAxisLock(settings s: Settings) {
@@ -421,26 +523,35 @@ final class ScrollEngine {
 
     // MARK: - Coasting (inertia)
 
-    private func record(dx: Double, dy: Double) {
-        samples[sampleIndex] = Sample(dx: dx, dy: dy, time: CFAbsoluteTimeGetCurrent())
+    private func record(dx: Double, dy: Double, dynamic: Double) {
+        samples[sampleIndex] = Sample(wheelDx: dx, wheelDy: dy, dynamic: dynamic, time: CFAbsoluteTimeGetCurrent())
         sampleIndex = (sampleIndex + 1) % samples.count
     }
 
-    /// Average velocity (points per second) of the last few scroll steps.
-    private func recentVelocity() -> CGPoint? {
+    /// Average velocity (points per second) of the last few scroll steps, measured
+    /// over the window the user configured. When `coastFollowsSpeedMode` is off the
+    /// dynamic part of the multiplier is divided out again, so inertia follows the
+    /// base speed no matter which speed mode is active.
+    private func recentVelocity(settings s: Settings) -> CGPoint? {
         let now = CFAbsoluteTimeGetCurrent()
-        guard now - lastScrollTime < 0.12 else { return nil }
+        let window = min(max(s.coastVelocityWindow, 0.03), 0.4)
+        guard now - lastScrollTime < window else { return nil }
 
-        let recent = samples.filter { $0.time > 0 && now - $0.time < 0.12 }
+        let recent = samples.filter { $0.time > 0 && now - $0.time < window }
         guard recent.count >= 2 else { return nil }
 
-        let sumX = recent.reduce(0) { $0 + $1.dx }
-        let sumY = recent.reduce(0) { $0 + $1.dy }
+        var sumX = 0.0
+        var sumY = 0.0
+        for sample in recent {
+            let divisor = s.coastFollowsSpeedMode ? 1 : max(sample.dynamic, 0.05)
+            sumX += sample.wheelDx / divisor
+            sumY += sample.wheelDy / divisor
+        }
         let oldest = recent.map { $0.time }.min() ?? now
         let span = max(now - oldest, 0.016)
 
         let velocity = CGPoint(x: sumX / span, y: sumY / span)
-        guard hypot(velocity.x, velocity.y) > 60 else { return nil }
+        guard hypot(velocity.x, velocity.y) > max(s.coastStartVelocity, 1) else { return nil }
         return velocity
     }
 
@@ -484,7 +595,7 @@ final class ScrollEngine {
                 self.coastMomentumActive = true
                 self.coastLock.unlock()
             }
-            if hypot(velocity.x, velocity.y) < 40 {
+            if hypot(velocity.x, velocity.y) < max(s.coastStopVelocity, 1) {
                 self.stopCoast(momentumEnd: true)
             }
         }

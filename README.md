@@ -98,13 +98,17 @@ sends — and a restart item. The same numbers are written to
 
 ## Options
 
+The window has three tabs: **General** (what starts a grab), **Advanced settings**
+(how the speed follows your hand, and inertia) and **Diagnostics** (live state and
+the tools for awkward mice).
+
 | Setting | MouseImp equivalent | Default |
 | --- | --- | --- |
 | DirectScroll enabled | Enabled | on |
 | Control type (left / right / middle / Button 4-7) | Control type | right button |
 | Activate on | Activate on | — |
 | Disable on | Disable on | ⌘ |
-| Scrolling speed | Scrolling speed (%) | 1.00× (0.2×–10×) |
+| Base speed | Scrolling speed (%) | 1.00× (0.2×–10×) |
 | Slow down on / factor | Slow down on | ⌥ / 0.25× |
 | Inverted horizontal / vertical | Inverted | off |
 | Lock to one axis while dragging | (opposite of) Bidirectional | on |
@@ -113,7 +117,8 @@ sends — and a restart item. The same numbers are written to
 | Ignore presses on scroll bars | — | on |
 | Drag threshold | (MouseImp drag rect) | 3 px |
 | Send line based wheel events | (Windows line scrolling) | off |
-| Keep scrolling after release | — | off |
+| Keep scrolling after release (inertia) | — | off |
+| Inertia friction / thresholds / window | — | 0.55 / 60 / 40 px/s / 0.12 s |
 | Extra buttons swallow their own click | — | on |
 | Applications without DirectScroll | — | — |
 
@@ -129,6 +134,27 @@ Mission Control, a shortcut the user bound), and that action must not fire when 
 same button is also the DirectScroll trigger — with an extra button selected, a
 short press does nothing and only dragging scrolls.
 
+## Speed modes (Advanced settings)
+
+Scrolling does not have to be a fixed ratio. Three modes, all coefficients adjustable
+and visible in the tab:
+
+| Mode | What it does |
+| --- | --- |
+| **Constant** | One multiplier for the whole drag — the behaviour of a plain scroll tool. |
+| **Follow the hand** | Faster movement scrolls further, and while the hand *accelerates* a boost is added (the derivative of the pointer speed). Response, boost, reference speed and acceleration, curve, smoothing and the min/max multiplier are all sliders. |
+| **Progressive** | The further you drag from the point where you pressed, the faster it scrolls; coming back slows it down again. |
+
+* Friction-free tuning: `Gentle` / `Balanced` / `Aggressive` presets, a `Defaults`
+  button (resets the Advanced tab only) and a live readout of the pointer speed, its
+  change and the multiplier that was actually used.
+* Coefficients apply from the next gesture, and the multiplier is always clamped into
+  the range you set, so a fast flick cannot fly off.
+* **Inertia is its own setting**, independent of the mode: friction, the start and
+  stop thresholds and the measurement window are all yours, and
+  `Coast follows the speed mode` decides whether inertia starts from the speed you
+  felt (dynamic) or from the base speed alone (default: base speed).
+
 ## Self test
 
 ```sh
@@ -137,8 +163,9 @@ short press does nothing and only dragging scrolls.
 
 Checks the whole gesture state machine (trigger buttons including the extra ones,
 drag threshold, speed, inversion, axis lock, modifier rules, click pass through,
-sub-pixel accumulation, Escape, freeze cursor) without needing any permission:
-25 checks, no tap, no Accessibility.
+sub-pixel accumulation, Escape, freeze cursor, the three speed modes, the settings
+format including upgrades from older versions, and inertia being independent of the
+mode) without needing any permission: 42 checks, no tap, no Accessibility.
 
 ## Safety: this program sits in the input path of the whole machine
 
@@ -187,8 +214,10 @@ Every design decision is analysed in
 └── Sources/MouseImpMac/
     ├── main.swift          entry point (and the --selftest branch)
     ├── AppDelegate.swift   menu bar item, settings window, login item, status file
-    ├── Settings.swift      settings model, persistence, trigger buttons
-    ├── SettingsView.swift  SwiftUI settings form, per application exclusions
+    ├── Settings.swift      settings model (speed modes, coefficients), persistence
+    ├── SettingsView.swift  the three settings tabs
+    ├── AppActions.swift    bridge from the settings window to the app
+    ├── LoginItem.swift     launch at login
     ├── EventTap.swift      the event tap, its thread, its mask, the watchdog
     ├── ScrollEngine.swift  gesture state machine, speed, axis lock, coast
     ├── WheelPoster.swift   scroll wheel synthesis, click and pointer helpers
@@ -196,6 +225,7 @@ Every design decision is analysed in
     ├── Probes.swift        permissions, window list, scroll bars
     ├── CursorTip.swift     "open hand" overlay while grabbing
     ├── Diagnostics.swift   status file writer
+    ├── EventTrace.swift    short passive trace of all event types (diagnostics)
     └── SelfTest.swift      headless checks
 ```
 

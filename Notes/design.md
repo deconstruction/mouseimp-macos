@@ -266,6 +266,45 @@ of the app is copied under a lock at the start of a gesture
   read by the diagnostics. The reject reasons exist because they turned an unhelpful
   "does not work" into "the press was a left click, the trigger is the right button".
 
+### Speed modes
+
+`speedMode` decides how the multiplier of a drag step is computed. The base `speed`
+is always applied on top, and the slow down key and the inversion stay independent of
+the mode.
+
+* **Constant** — multiplier `1`; the behaviour of a plain scrolling tool.
+* **Follow the hand** — the pointer speed `v` and its derivative `a`, both EMA
+  smoothed (0.3 and 0.2 per step), give
+  `1 + k_v·(v/v_ref)^p + k_a·clamp(a/a_ref, 0, 1)`.
+  Only *positive* acceleration adds anything: slowing the hand returns to the base
+  speed instead of undershooting. `dt` comes from `CGEvent.timestamp` (nanoseconds,
+  monotonic) rather than a wall clock, clamped to 1–50 ms so a stalled tap cannot
+  produce a giant acceleration. The derivative term is clamped to its share before it
+  is scaled by `k_a`, so a single spike cannot dominate.
+* **Progressive** — `1 + ramp·min(d/d_ref, 4)^q` with `d` the distance from the point
+  where the drag started (the same `travelX/travelY` the axis lock uses). It is a
+  *position* based response, so coming back towards the start slows down again by
+  design.
+
+The raw multiplier is clamped into `minMultiplier…maxMultiplier` **before** it is
+smoothed (`dynamicSmoothing`, EMA per step, 1 = no smoothing): clamping first means
+noise cannot leak past the user's limits, and smoothing after means one noisy step
+cannot jerk the scroll. Rejected alternatives: an unsmoothed derivative (twitchy,
+especially with cheap mice), a jump-based "flick detector" (only two states, and it
+reacts to noise), and applying the dynamic factor to the *coast* velocity as well
+(see below).
+
+**The settings are snapshotted per gesture** (`gestureSettings`, taken in `beginGrab`)
+so a coefficient changed while dragging cannot alter the running gesture halfway
+through — the UI says "applies from the next drag" and that is literally true.
+
+**Inertia stays independent.** The coast velocity is measured over
+`coastVelocityWindow` from the recorded wheel deltas; when
+`coastFollowsSpeedMode` is off, each sample's dynamic factor is divided out again, so
+inertia starts from the *base* speed whatever mode is active. With it on, the coast
+inherits the boost the user just felt. The start and stop thresholds and the window
+are settings as well, so inertia can be tuned without touching the modes.
+
 ---
 
 ## 6. Window / application / scroll bar knowledge: `TargetCache`
@@ -301,7 +340,13 @@ click through.
 * **A menu bar app** (`NSApplication` with the `.accessory` activation policy, no
   Dock icon) — the counterpart of the tray icon; the settings window is SwiftUI
   hosted in an `NSHostingView` inside a plain `NSWindow`, which keeps the lifecycle
-  explicit (no SwiftUI scene plumbing in a hand assembled bundle).
+  explicit (no SwiftUI scene plumbing in a hand assembled bundle). The window is a
+  `TabView` with three tabs: **General** (trigger, direction, cursor, excluded
+  applications, launch at login), **Advanced settings** (speed mode, all
+  coefficients, presets, inertia, live dynamics) and **Diagnostics** (status text and
+  the tools). Each tab starts with one sentence of plain language, and every
+  coefficient has a short hint under its slider — the tabs exist so the everyday
+  options are not buried under the tuning ones.
 * **`AXIsProcessTrustedWithOptions` with the prompt** at launch, plus a 2 s timer
   that installs the tap as soon as the permission appears. Reasons: the user may
   grant it while the app runs, and macOS does not notify about it, so polling is the
@@ -338,10 +383,13 @@ click through.
 
 Verified without a tap:
 
-* `--selftest`: 28/28 (trigger button variants including the extra buttons, drag
+* `--selftest`: 42/42 (trigger button variants including the extra buttons, drag
   threshold, speed, inversion, axis lock, required/disabled modifiers, click
   passthrough and the extra button swallow, sub pixel accumulation, Escape, freeze
-  cursor, own event filtering, line mode).
+  cursor, own event filtering, line mode, the three speed modes with their clamps and
+  the derivative behaviour, inertia being independent of the mode, and the settings
+  format - including a round trip in which every field differs from its default, and
+  an upgrade from a blob written by an older build).
 * The scroll conversion arithmetic of the Windows counterpart was run through a
   standalone harness (`12 px = 1 notch`, remainder carried, clamp, inversion).
 * The tap plumbing was observed live: `tap: running`, the tap listed by the system as
@@ -367,8 +415,10 @@ Needs the machine, with the permission granted:
 macos/Sources/MouseImpMac/
 ├── main.swift          entry point, --selftest branch, accessory app
 ├── AppDelegate.swift   menu bar item, settings window, login item, status file
-├── Settings.swift      settings model, persistence, modifier masks, defaults
-├── SettingsView.swift  SwiftUI form, per application exclusions
+├── Settings.swift      settings model (speed modes, coefficients), persistence
+├── SettingsView.swift  the three settings tabs
+├── AppActions.swift    bridge from the settings window to the app
+├── LoginItem.swift     launch at login
 ├── EventTap.swift      the tap, its thread, its mask, the watchdog
 ├── ScrollEngine.swift  gesture state machine, speed, axis lock, coast, statistics
 ├── WheelPoster.swift   wheel event synthesis, click/pointer helpers, post log
@@ -376,5 +426,6 @@ macos/Sources/MouseImpMac/
 ├── Probes.swift        permissions, window list, AX scroll bars (bounded)
 ├── CursorTip.swift     "open hand" overlay while grabbing
 ├── Diagnostics.swift   status file writer
+├── EventTrace.swift    short passive trace of every event type
 └── SelfTest.swift      headless checks
 ```

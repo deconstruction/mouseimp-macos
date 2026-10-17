@@ -12,6 +12,9 @@ if CommandLine.arguments.contains("--selftest") {
 
 let app = NSApplication.shared
 let delegate = AppDelegate()
+// Development aid: open the settings window right away (used to check the UI
+// without clicking through the menu bar).
+delegate.openSettingsOnLaunch = CommandLine.arguments.contains("--show-settings")
 app.delegate = delegate
 // Menu bar only: no Dock icon, no main window.
 app.setActivationPolicy(.accessory)

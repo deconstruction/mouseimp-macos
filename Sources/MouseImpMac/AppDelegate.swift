@@ -13,6 +13,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let cursorTip = CursorTip()
     private lazy var tap = EventTapController(engine: engine)
 
+    /// Set by `main` when the app is launched with `--show-settings`.
+    var openSettingsOnLaunch = false
+
     private var statusItem: NSStatusItem?
     private var settingsWindow: NSWindow?
     private var permissionTimer: Timer?
@@ -44,6 +47,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         buildStatusItem()
         refresh()
 
+        // Bridge for the settings window: actions and live numbers.
+        AppActions.shared.restartTap = { [weak self] in self?.ensureTapRunning() }
+        AppActions.shared.traceEvents = { [weak self] in self?.traceEvents() }
+        AppActions.shared.testScroll = { [weak self] in self?.testScroll() }
+        AppActions.shared.statusFilePath = { Diagnostics.shared.path }
+        AppActions.shared.statusText = { [weak self] in self?.statusText() ?? "" }
+        AppActions.shared.speedLine = { [weak self] in
+            guard let self else { return "no data yet" }
+            let stats = self.engine.stats
+            return String(format: "pointer %.0f px/s   change %+.0f px/s²   multiplier %.2f×",
+                          stats.lastVelocity, stats.lastAcceleration, stats.lastMultiplier)
+        }
+
         // Window/scroll bar lookups happen on a background queue, never in the tap.
         TargetCache.shared.setLookForScrollbars(store.value.skipScrollbars)
         TargetCache.shared.start()
@@ -58,6 +74,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         if !Probes.canPostEvents {
             Probes.requestPostAccess()
+        }
+
+        if openSettingsOnLaunch {
+            openSettings()
         }
     }
 
@@ -160,7 +180,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         let login = NSMenuItem(title: "Launch at login", action: #selector(toggleLoginItem), keyEquivalent: "")
         login.target = self
-        login.state = Self.launchesAtLogin ? .on : .off
+        login.state = LoginItem.isEnabled ? .on : .off
         login.tag = 4
         menu.addItem(login)
 
@@ -175,7 +195,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.item(withTag: 1)?.state = store.value.enabled ? .on : .off
         menu.item(withTag: 2)?.title = statusLine()
         menu.item(withTag: 3)?.title = diagnosticsLine()
-        menu.item(withTag: 4)?.state = Self.launchesAtLogin ? .on : .off
+        menu.item(withTag: 4)?.state = LoginItem.isEnabled ? .on : .off
         statusItem?.button?.appearsDisabled = !store.value.enabled || !tap.status.isRunning
     }
 
@@ -232,9 +252,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lines.append("enabled: \(s.enabled)")
         lines.append("trigger: \(s.triggerButton.title)")
         lines.append("modifiers: require=\(s.requireModifiers.label) disable=\(s.disableModifiers.label) slow=\(s.slowModifiers.label)")
-        lines.append("speed: \(String(format: "%.2f", s.speed)) slowFactor: \(String(format: "%.2f", s.slowFactor))"
-                     + " invertX: \(s.invertX) invertY: \(s.invertY) snapToAxis: \(s.snapToAxis)")
-        lines.append("cursor: freeze=\(s.freezeCursor) hand=\(s.showHandCursor) coast=\(s.coastEnabled) lineScroll=\(s.lineScroll)")
+        lines.append("speed: \(String(format: "%.2f", s.speed)) mode=\(s.speedMode.rawValue)"
+                     + " k_v=\(String(format: "%.2f", s.velocityResponse)) k_a=\(String(format: "%.2f", s.accelerationBoost))"
+                     + " v_ref=\(Int(s.velocityReference)) a_ref=\(Int(s.accelerationReference))"
+                     + " ramp=\(String(format: "%.2f", s.distanceRamp)) d_ref=\(Int(s.distanceReference))"
+                     + " smoothing=\(String(format: "%.2f", s.dynamicSmoothing))"
+                     + " min=\(String(format: "%.2f", s.minMultiplier)) max=\(String(format: "%.2f", s.maxMultiplier))")
+        lines.append("inertia: coast=\(s.coastEnabled) factor=\(String(format: "%.2f", s.coastFactor))"
+                     + " start=\(Int(s.coastStartVelocity)) stop=\(Int(s.coastStopVelocity))"
+                     + " window=\(String(format: "%.2f", s.coastVelocityWindow)) followsMode=\(s.coastFollowsSpeedMode)")
+        lines.append("dynamics: \(String(format: "v=%.0f px/s a=%+.0f px/s2 m=%.2fx", stats.lastVelocity, stats.lastAcceleration, stats.lastMultiplier))")
+        lines.append("cursor: freeze=\(s.freezeCursor) hand=\(s.showHandCursor) lineScroll=\(s.lineScroll)"
+                     + " slowFactor=\(String(format: "%.2f", s.slowFactor))"
+                     + " invertX=\(s.invertX) invertY=\(s.invertY) snapToAxis=\(s.snapToAxis)"
+                     + " dragThreshold=\(String(format: "%.0f", s.dragThreshold))")
         lines.append("excludedApps: \(s.disabledBundles.count)")
         lines.append("trusted: \(Probes.isTrusted) canPostEvents: \(Probes.canPostEvents)")
         lines.append("tap: \(tap.status.description)")
@@ -322,11 +353,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func toggleLoginItem() {
         do {
-            if Self.launchesAtLogin {
-                try SMAppService.mainApp.unregister()
-            } else {
-                try SMAppService.mainApp.register()
-            }
+            try LoginItem.set(!LoginItem.isEnabled)
         } catch {
             let alert = NSAlert()
             alert.messageText = "Could not change the login item"
@@ -336,7 +363,4 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refresh()
     }
 
-    static var launchesAtLogin: Bool {
-        SMAppService.mainApp.status == .enabled
-    }
 }
