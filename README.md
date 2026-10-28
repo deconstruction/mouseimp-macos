@@ -32,7 +32,7 @@ events) is documented, with the reasoning and the rejected alternatives, in
 
 ## Download
 
-Releases are on the [releases page](../../releases): download `MouseImp-<version>.dmg`,
+Releases are on the [releases page](https://github.com/deconstruction/mouseimp-macos/releases): download `MouseImp-<version>.dmg`,
 open it and drag **MouseImp** into *Applications*.
 
 The builds are **ad-hoc signed, not notarised** (there is no Apple Developer
