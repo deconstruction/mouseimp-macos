@@ -139,5 +139,9 @@
 "menu.recheck" = "Re-check permission / restart tap";
 "menu.openAccessibility" = "Open Accessibility settings…";
 "menu.launchAtLogin" = "Launch at login";
+"menu.writeStatus" = "Write status file";
+"diag.writeStatus" = "Write status file";
+"diag.writeStatus.hint" = "A small file (~6 KB) with counters and the last events; useful for bug reports. Off means the app writes nothing.";
+
 "menu.quit" = "Quit MouseImp";
 "menu.loginFailed.title" = "Could not change the login item";

@@ -41,6 +41,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         subscription = store.$value.sink { [weak self] settings in
             self?.engine.update(settings: settings)
             TargetCache.shared.setLookForScrollbars(settings.skipScrollbars)
+            self?.applyDiagnosticsSetting()
             self?.refresh()
         }
 
@@ -64,7 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         TargetCache.shared.setLookForScrollbars(store.value.skipScrollbars)
         TargetCache.shared.start()
 
-        Diagnostics.shared.start { [weak self] in self?.statusText() ?? "" }
+        applyDiagnosticsSetting()
 
         if Probes.isTrusted {
             tap.start()
@@ -101,6 +102,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             self.permissionTimer = nil
             self.tap.restart()
             self.refresh()
+        }
+    }
+
+    /// Starts or stops writing the status file, following the setting.
+    private func applyDiagnosticsSetting() {
+        if store.value.diagnosticsLog {
+            Diagnostics.shared.start { [weak self] in self?.statusText() ?? "" }
+        } else {
+            Diagnostics.shared.stop()
         }
     }
 
@@ -167,6 +177,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         let trace = NSMenuItem(title: NSLocalizedString("menu.trace", comment: ""), action: #selector(traceEvents), keyEquivalent: "")
         trace.target = self
         submenu.addItem(trace)
+        let statusFile = NSMenuItem(title: NSLocalizedString("menu.writeStatus", comment: ""),
+                                    action: #selector(toggleStatusFile), keyEquivalent: "")
+        statusFile.target = self
+        statusFile.tag = 6
+        statusFile.state = store.value.diagnosticsLog ? .on : .off
+        submenu.addItem(statusFile)
         let refreshItem = NSMenuItem(title: NSLocalizedString("menu.recheck", comment: ""), action: #selector(restartTap), keyEquivalent: "")
         refreshItem.target = self
         submenu.addItem(refreshItem)
@@ -196,6 +212,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.item(withTag: 2)?.title = statusLine()
         menu.item(withTag: 3)?.title = diagnosticsLine()
         menu.item(withTag: 4)?.state = LoginItem.isEnabled ? .on : .off
+        menu.item(withTag: 6)?.state = store.value.diagnosticsLog ? .on : .off
         statusItem?.button?.appearsDisabled = !store.value.enabled || !tap.status.isRunning
     }
 
@@ -266,6 +283,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                      + " start=\(Int(s.coastStartVelocity)) stop=\(Int(s.coastStopVelocity))"
                      + " window=\(String(format: "%.2f", s.coastVelocityWindow)) followsMode=\(s.coastFollowsSpeedMode)")
         lines.append("dynamics: \(String(format: "v=%.0f px/s a=%+.0f px/s2 m=%.2fx", stats.lastVelocity, stats.lastAcceleration, stats.lastMultiplier))")
+        lines.append("gesture: phase=\(stats.phase) lastRelease=\(stats.lastRelease)")
+        lines.append("coast: active=\(stats.coastActive) starts=\(stats.coastStarts) stops=\(stats.coastStops) lastStart=\(stats.lastCoastStart) lastStop=\(stats.lastCoastStop)")
         lines.append("cursor: freeze=\(s.freezeCursor) hand=\(s.showHandCursor) lineScroll=\(s.lineScroll)"
                      + " slowFactor=\(String(format: "%.2f", s.slowFactor))"
                      + " invertX=\(s.invertX) invertY=\(s.invertY) snapToAxis=\(s.snapToAxis)"
@@ -285,7 +304,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lines.append("lastGrab: \(stats.lastGrab)")
         lines.append("lastScroll: \(stats.lastScroll)")
         lines.append("posts:")
-        for entry in WheelPoster.recentPosts(10) {
+        for entry in WheelPoster.recentPosts(80) {
             lines.append("  \(entry)")
         }
         return lines.joined(separator: "\n") + "\n"
@@ -328,6 +347,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         settingsWindow?.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+
+    @objc private func toggleStatusFile() {
+        var settings = store.value
+        settings.diagnosticsLog.toggle()
+        store.value = settings
     }
 
     @objc private func restartTap() {

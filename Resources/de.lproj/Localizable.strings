@@ -133,5 +133,9 @@
 "menu.recheck" = "Berechtigung prüfen / Tap neu starten";
 "menu.openAccessibility" = "Bedienungshilfen öffnen…";
 "menu.launchAtLogin" = "Bei der Anmeldung starten";
+"menu.writeStatus" = "Statusdatei schreiben";
+"diag.writeStatus" = "Statusdatei schreiben";
+"diag.writeStatus.hint" = "Eine kleine Datei (~6 KB) mit Zählern und den letzten Ereignissen; nützlich für Fehlerberichte. Aus bedeutet: es wird nichts geschrieben.";
+
 "menu.quit" = "MouseImp beenden";
 "menu.loginFailed.title" = "Anmeldeobjekt konnte nicht geändert werden";

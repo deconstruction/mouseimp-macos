@@ -94,6 +94,16 @@ final class ScrollEngine {
         var lastMultiplier: Double = 1
         /// Velocity the last inertia started with (points per second).
         var lastCoastVelocity: CGPoint = .zero
+        /// Gesture phase and the last release, for the diagnostics.
+        var phase: String = "idle"
+        var lastRelease: String = "-"
+        /// Inertia bookkeeping: a scroll that outlives the button must show up here.
+        var coastActive: Bool = false
+        var coastStarts: Int = 0
+        var coastStops: Int = 0
+        var lastCoastStart: String = "-"
+        var lastCoastStop: String = "-"
+
         /// Why a press did not start a grab, e.g. "notTriggerButton" or "ownApp".
         var rejects: [String: Int] = [:]
     }
@@ -111,6 +121,10 @@ final class ScrollEngine {
         statsLock.lock()
         body(&statsValue)
         statsLock.unlock()
+    }
+
+    private func notePhase(_ name: String) {
+        updateStats { $0.phase = name }
     }
 
     private func reject(_ reason: String) {
@@ -140,7 +154,7 @@ final class ScrollEngine {
         switch type {
         case .leftMouseDown, .rightMouseDown, .otherMouseDown:
             // Any press interrupts inertia, even one that is then refused.
-            stopCoast(momentumEnd: true)
+            stopCoast(momentumEnd: true, reason: "press")
             return mouseDown(type: type, event: event)
         case .leftMouseDragged, .rightMouseDragged, .otherMouseDragged:
             return mouseDragged(type: type, event: event)
@@ -148,7 +162,7 @@ final class ScrollEngine {
             return mouseUp(type: type, event: event)
         case .keyDown:
             // Escape cancels a running grab, any key stops coasting.
-            stopCoast(momentumEnd: true)
+            stopCoast(momentumEnd: true, reason: "key")
             if phase == .grabbing, event.getIntegerValueField(.keyboardEventKeycode) == 53 {
                 finishGrab(coast: false, settings: gestureSettings ?? snapshot())
                 return nil
@@ -156,7 +170,7 @@ final class ScrollEngine {
             return event
         case .scrollWheel:
             // A real wheel event while coasting: the user took over.
-            if coasting { stopCoast(momentumEnd: true) }
+            if coasting { stopCoast(momentumEnd: true, reason: "wheel") }
             return event
         default:
             return event
@@ -240,6 +254,7 @@ final class ScrollEngine {
         sampleIndex = 0
         for i in samples.indices { samples[i] = Sample() }
         phase = .pressed
+        notePhase("pressed")
 
         // The press is consumed; if it turns out to be a plain click we re-post it
         // on mouse up so context menus and middle click keep working.
@@ -288,6 +303,7 @@ final class ScrollEngine {
                 updateStats { $0.suppressedClicks += 1 }
             }
             phase = .idle
+            notePhase("idle")
         case .grabbing:
             finishGrab(coast: s.coastEnabled, settings: s)
         case .idle:
@@ -300,6 +316,7 @@ final class ScrollEngine {
 
     private func beginGrab(settings s: Settings) {
         phase = .grabbing
+        notePhase("grabbing")
         gestureSettings = s
         accX = 0
         accY = 0
@@ -329,7 +346,10 @@ final class ScrollEngine {
 
     private func finishGrab(coast: Bool, settings s: Settings) {
         phase = .idle
+        notePhase("idle")
         gestureSettings = nil
+        let stamp = String(format: "t=%.3f coast=%@", Date().timeIntervalSince1970, coast ? "on" : "off")
+        updateStats { $0.lastRelease = stamp }
         if pointerFrozen {
             poster.postMouseMoved(to: anchor)
             pointerFrozen = false
@@ -556,6 +576,16 @@ final class ScrollEngine {
     }
 
     private func startCoast(velocity: CGPoint, settings s: Settings) {
+        let stamp = String(format: "t=%.3f v=%.0f px/s factor=%.2f follows=%@",
+                           Date().timeIntervalSince1970,
+                           hypot(velocity.x, velocity.y),
+                           s.coastFactor,
+                           s.coastFollowsSpeedMode ? "on" : "off")
+        updateStats { stats in
+            stats.lastCoastStart = stamp
+            stats.coastStarts += 1
+            stats.coastActive = true
+        }
         // 60 Hz momentum: v *= coastFactor^(dt*60) makes the decay independent of
         // timer jitter, and the momentum phase tells the application that this is
         // inertia (so AppKit scroll views keep their own smoothing consistent).
@@ -596,7 +626,7 @@ final class ScrollEngine {
                 self.coastLock.unlock()
             }
             if hypot(velocity.x, velocity.y) < max(s.coastStopVelocity, 1) {
-                self.stopCoast(momentumEnd: true)
+                self.stopCoast(momentumEnd: true, reason: "slow")
             }
         }
         coastQueue.async {
@@ -607,7 +637,7 @@ final class ScrollEngine {
         timer.resume()
     }
 
-    private func stopCoast(momentumEnd: Bool) {
+    private func stopCoast(momentumEnd: Bool, reason: String = "-") {
         coastLock.lock()
         let timer = coastTimer
         let wasActive = coastMomentumActive
@@ -619,6 +649,12 @@ final class ScrollEngine {
         guard let timer else { return }
         timer.setEventHandler {}
         timer.cancel()
+        let stamp = String(format: "t=%.3f %@", Date().timeIntervalSince1970, reason)
+        updateStats { stats in
+            stats.lastCoastStop = stamp
+            stats.coastStops += 1
+            stats.coastActive = false
+        }
         if momentumEnd, wasActive {
             // Tell the target application the momentum phase is over.
             poster.postScroll(dx: 0, dy: 0, momentum: .end)

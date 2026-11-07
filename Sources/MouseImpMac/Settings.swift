@@ -215,6 +215,10 @@ struct Settings: Codable, Equatable {
 
     /// Do not start a grab on a native scroll bar.
     var skipScrollbars: Bool = true
+
+    /// Write the diagnostics status file. Off costs nothing; on is what a bug
+    /// report needs. Toggled from the menu bar and the Diagnostics tab.
+    var diagnosticsLog: Bool = true
 }
 
 extension Settings {
@@ -283,6 +287,7 @@ extension Settings {
         lineScroll = get(.lineScroll, lineScroll)
         disabledBundles = get(.disabledBundles, disabledBundles)
         skipScrollbars = get(.skipScrollbars, skipScrollbars)
+        diagnosticsLog = get(.diagnosticsLog, diagnosticsLog)
     }
 }
 

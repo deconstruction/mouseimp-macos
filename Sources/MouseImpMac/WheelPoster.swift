@@ -87,7 +87,7 @@ final class WheelPoster {
             ev.setDoubleValueField(.scrollWheelEventFixedPtDeltaAxis2, value: dx)
             ev.setIntegerValueField(.scrollWheelEventIsContinuous, value: 1)
             applyMomentum(ev, momentum)
-            note(String(format: "scroll dx=%.2f dy=%.2f lines=%d", dx, dy, lines ? 1 : 0))
+            note(entry(dx: dx, dy: dy, lines: lines, momentum: momentum))
             ev.post(tap: .cgSessionEventTap)
             return true
         }
@@ -111,9 +111,18 @@ final class WheelPoster {
         // pixel path, or line mode scrolls in the wrong direction.
 
         applyMomentum(ev, momentum)
-        note(String(format: "scroll dx=%.2f dy=%.2f lines=%d", dx, dy, lines ? 1 : 0))
+        note(entry(dx: dx, dy: dy, lines: lines, momentum: momentum))
         ev.post(tap: .cgSessionEventTap)
         return true
+    }
+
+    /// One log line per posted event: wall clock, deltas and momentum phase, so a
+    /// scroll that continues after the button is released can be attributed to a
+    /// momentum event of ours or to the target application.
+    private func entry(dx: Double, dy: Double, lines: Bool, momentum: Momentum?) -> String {
+        String(format: "t=%.3f scroll dx=%.2f dy=%.2f lines=%d mom=%@",
+               Date().timeIntervalSince1970, dx, dy, lines ? 1 : 0,
+               momentum.map { "\($0)" } ?? "-")
     }
 
     /// Post a plain mouse click (used when a press turned out to be a click, not
@@ -134,7 +143,7 @@ final class WheelPoster {
 
         make(button.downType)?.post(tap: .cgSessionEventTap)
         make(button.upType)?.post(tap: .cgSessionEventTap)
-        note(String(format: "click %@ at %.0f,%.0f", button.title, point.x, point.y))
+        note(String(format: "t=%.3f click %@ at %.0f,%.0f", Date().timeIntervalSince1970, button.title, point.x, point.y))
     }
 
     /// Move the pointer (used to pin it while `freezeCursor` is on).
@@ -144,7 +153,7 @@ final class WheelPoster {
                                mouseCursorPosition: point, mouseButton: .left) else { return }
         tag(ev)
         ev.post(tap: .cgSessionEventTap)
-        note(String(format: "move %.0f,%.0f", point.x, point.y))
+        note(String(format: "t=%.3f move %.0f,%.0f", Date().timeIntervalSince1970, point.x, point.y))
     }
 
     /// Change the reported momentum phase of an *incoming* event. Kept for parity

@@ -378,6 +378,13 @@ click through.
   across rebuilds. `./Scripts/make-signing-identity.sh --remove` undoes it.
   `tccutil reset Accessibility ru.deconstruction.mouseimp` clears a stale entry when
   the signature changed anyway.
+* **The status file can be switched off.** `diagnosticsLog` is a setting (menu bar →
+  Diagnostics → Write status file, and the same toggle on the Diagnostics tab) and
+  `applyDiagnosticsSetting()` starts or stops the writer accordingly, so a user who
+  does not want the once-a-second write gets exactly nothing; the tab still computes
+  the same text on demand, so turning it off does not blind the window. With the
+  writer on, the file is one ~6 KB document that is replaced atomically, never
+  appended: no log growth, no rotation.
 * **Diagnostics file** `~/Library/Application Support/MouseImp/status.txt`, rewritten
   once a second only when the content changed. It is how the state of a menu bar app
   can be checked from outside (and how the rules in §2 are verified in practice):

@@ -133,5 +133,9 @@
 "menu.recheck" = "Vérifier l’autorisation / redémarrer";
 "menu.openAccessibility" = "Ouvrir Accessibilité…";
 "menu.launchAtLogin" = "Ouvrir à l’ouverture de session";
+"menu.writeStatus" = "Écrire le fichier d’état";
+"diag.writeStatus" = "Écrire le fichier d’état";
+"diag.writeStatus.hint" = "Un petit fichier (~6 Ko) avec les compteurs et les derniers événements ; utile pour les rapports de bug. Désactivé, rien n’est écrit.";
+
 "menu.quit" = "Quitter MouseImp";
 "menu.loginFailed.title" = "Impossible de modifier l’ouverture automatique";

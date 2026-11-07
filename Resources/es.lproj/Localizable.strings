@@ -133,5 +133,9 @@
 "menu.recheck" = "Revisar el permiso / reiniciar la captura";
 "menu.openAccessibility" = "Abrir Accesibilidad…";
 "menu.launchAtLogin" = "Abrir al iniciar sesión";
+"menu.writeStatus" = "Escribir el archivo de estado";
+"diag.writeStatus" = "Escribir el archivo de estado";
+"diag.writeStatus.hint" = "Un archivo pequeño (~6 KB) con contadores y los últimos eventos; útil para informes de errores. Desactivado no escribe nada.";
+
 "menu.quit" = "Salir de MouseImp";
 "menu.loginFailed.title" = "No se pudo cambiar el inicio automático";

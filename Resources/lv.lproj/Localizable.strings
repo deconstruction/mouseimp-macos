@@ -133,5 +133,9 @@
 "menu.recheck" = "Pārbaudīt atļauju / pārstartēt pārtveršanu";
 "menu.openAccessibility" = "Atvērt piekļūstamības iestatījumus…";
 "menu.launchAtLogin" = "Palaist piesakoties";
+"menu.writeStatus" = "Rakstīt stāvokļa failu";
+"diag.writeStatus" = "Rakstīt stāvokļa failu";
+"diag.writeStatus.hint" = "Neliels fails (~6 KB) ar skaitītājiem un pēdējiem notikumiem; noderīgi kļūdu ziņojumiem. Izslēgts — lietotne neko neraksta.";
+
 "menu.quit" = "Aizvērt MouseImp";
 "menu.loginFailed.title" = "Neizdevās mainīt palaišanu piesakoties";

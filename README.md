@@ -193,8 +193,12 @@ of the tap mask). The rules that keep it from blocking:
   stays off and says so in the menu and in the status file);
 * `~/Library/Application Support/MouseImp/status.txt` (rewritten once a second)
   reports permissions, tap and watchdog state, event counters, engine counters, the
-  reasons a press was refused and the last posted events, so the app can be checked
-  from outside without clicking anything.
+  reasons a press was refused, the gesture phase, the inertia start/stop and the last
+  posted events, so the app can be checked from outside without clicking anything.
+  It is one small file (~6 KB) that is overwritten, never appended, and **it can be
+  switched off** from *Diagnostics → Write status file* (or the Diagnostics tab): off
+  means the app writes nothing at all, while the tab keeps showing the same numbers
+  live.
 
 Every design decision is analysed in
 [Notes/design.md](Notes/design.md).

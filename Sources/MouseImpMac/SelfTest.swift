@@ -47,7 +47,7 @@ enum SelfTest {
             check("right press consumed", engine.handle(type: .rightMouseDown, event: down) == nil)
             let up = mouseEvent(.rightMouseUp, .right, at: origin)
             check("right release consumed", engine.handle(type: .rightMouseUp, event: up) == nil)
-            check("click handed to the application", poster.drainLog().contains { $0.hasPrefix("click") })
+            check("click handed to the application", poster.drainLog().contains { $0.contains(" click ") })
         }
 
         // 2. Movement below the drag threshold does not scroll.
@@ -165,7 +165,7 @@ enum SelfTest {
             _ = engineSide.handle(type: .otherMouseDown, event: down)
             _ = engineSide.handle(type: .otherMouseUp, event: up)
             let log = posterSide.drainLog()
-            check("extra button click is not replayed", log.contains { $0.hasPrefix("click") } == false)
+            check("extra button click is not replayed", log.contains { $0.contains(" click ") } == false)
             check("extra button click counted as suppressed", engineSide.stats.suppressedClicks == 1)
 
             let (engineRight, posterRight) = makeEngine()
@@ -173,7 +173,7 @@ enum SelfTest {
             _ = engineRight.handle(type: .rightMouseDown, event: mouseEvent(.rightMouseDown, .right, at: origin))
             _ = engineRight.handle(type: .rightMouseUp, event: mouseEvent(.rightMouseUp, .right, at: origin))
             check("standard button click is replayed",
-                  posterRight.drainLog().contains { $0.hasPrefix("click") })
+                  posterRight.drainLog().contains { $0.contains(" click ") })
         }
 
         // 10. Our own synthetic events never feed back into the engine.
@@ -202,8 +202,8 @@ enum SelfTest {
             let moved = origin.applying(.init(translationX: 0, y: 40))
             _ = engine.handle(type: .rightMouseDragged, event: mouseEvent(.rightMouseDragged, .right, at: moved))
             let log = poster.drainLog()
-            check("pointer is pinned while dragging", log.contains { $0.hasPrefix("move") })
-            check("pinned drag still scrolls", log.contains { $0.hasPrefix("scroll") })
+            check("pointer is pinned while dragging", log.contains { $0.contains(" move ") })
+            check("pinned drag still scrolls", log.contains { $0.contains(" scroll ") })
         }
 
         // 13. Escape cancels a running grab.
@@ -275,6 +275,7 @@ enum SelfTest {
             s.lineScroll = true
             s.disabledBundles = ["com.example.one", "com.example.two"]
             s.skipScrollbars = false
+            s.diagnosticsLog = false
             let data = try? JSONEncoder().encode(s)
             let decoded = data.flatMap { try? JSONDecoder().decode(Settings.self, from: $0) }
             check("every setting survives encode + decode", decoded == s)

@@ -437,6 +437,7 @@ struct AdvancedSettings: View {
 // MARK: - Diagnostics
 
 struct DiagnosticsSettings: View {
+    @EnvironmentObject private var store: SettingsStore
     @State private var statusText = ""
     private let refreshTimer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
@@ -445,6 +446,11 @@ struct DiagnosticsSettings: View {
             TabIntro(text: NSLocalizedString("diag.intro", comment: ""))
 
             Section {
+                Toggle("diag.writeStatus", isOn: binding(\.diagnosticsLog))
+                Text("diag.writeStatus.hint")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
                 Text(statusText.isEmpty ? NSLocalizedString("diag.reading", comment: "") : statusText)
                     .font(.system(.caption, design: .monospaced))
                     .foregroundStyle(.secondary)
@@ -477,6 +483,17 @@ struct DiagnosticsSettings: View {
         .onReceive(refreshTimer) { _ in
             statusText = AppActions.shared.statusText()
         }
+    }
+
+    private func binding<Value>(_ keyPath: WritableKeyPath<Settings, Value>) -> Binding<Value> {
+        Binding(
+            get: { store.value[keyPath: keyPath] },
+            set: { newValue in
+                var settings = store.value
+                settings[keyPath: keyPath] = newValue
+                store.value = settings
+            }
+        )
     }
 }
 

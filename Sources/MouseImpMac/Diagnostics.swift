@@ -25,6 +25,7 @@ final class Diagnostics {
 
     /// `provider` is called on the diagnostics queue once a second.
     func start(provider: @escaping () -> String) {
+        guard timer == nil else { return }
         self.provider = provider
         writeNow()
 
