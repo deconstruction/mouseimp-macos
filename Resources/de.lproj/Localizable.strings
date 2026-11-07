@@ -121,6 +121,11 @@
 "diag.restart" = "Event-Tap neu starten";
 "diag.tools.footer" = "Die Aufzeichnung enthält alle Ereignistypen, die das System liefert, auch die, die die App nicht behandelt – so findet man heraus, was eine ungewöhnliche Maustaste wirklich sendet.";
 
+"menu.about" = "Über MouseImp";
+"about.tagline" = "DirectScroll für macOS: Maustaste gedrückt halten und ziehen – das Fenster unter dem Zeiger scrollt.";
+"about.version" = "Version %@";
+"about.source" = "Quelltext";
+
 "menu.enabled" = "DirectScroll aktiviert";
 "menu.settings" = "Einstellungen…";
 "menu.diagnostics" = "Diagnose";

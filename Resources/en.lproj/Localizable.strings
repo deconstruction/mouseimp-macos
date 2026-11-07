@@ -127,6 +127,11 @@
 "diag.tools.footer" = "The trace records every event type the system delivers, including the ones the app does not handle - that is how you find out what an unusual mouse button actually sends.";
 
 /* Menu bar */
+"menu.about" = "About MouseImp";
+"about.tagline" = "DirectScroll for macOS: hold a mouse button and drag to scroll the window under the pointer.";
+"about.version" = "Version %@";
+"about.source" = "Source code";
+
 "menu.enabled" = "DirectScroll enabled";
 "menu.settings" = "Settings…";
 "menu.diagnostics" = "Diagnostics";

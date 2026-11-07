@@ -39,9 +39,12 @@ final class Diagnostics {
         timer.resume()
     }
 
+    /// Stops the timer and drops the provider, so a later `writeNow()` (the trace
+    /// tool) cannot write either: off means the app touches nothing.
     func stop() {
         timer?.cancel()
         timer = nil
+        provider = nil
     }
 
     func writeNow() {

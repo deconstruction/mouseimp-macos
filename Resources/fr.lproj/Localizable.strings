@@ -121,6 +121,11 @@
 "diag.restart" = "Redémarrer la capture d’événements";
 "diag.tools.footer" = "L’enregistrement contient tous les types d’événements livrés par le système, y compris ceux que l’application ne traite pas : c’est ainsi qu’on découvre ce qu’envoie réellement un bouton inhabituel.";
 
+"menu.about" = "À propos de MouseImp";
+"about.tagline" = "DirectScroll pour macOS : maintenez un bouton de la souris et glissez pour faire défiler la fenêtre sous le pointeur.";
+"about.version" = "Version %@";
+"about.source" = "Code source";
+
 "menu.enabled" = "DirectScroll activé";
 "menu.settings" = "Réglages…";
 "menu.diagnostics" = "Diagnostic";

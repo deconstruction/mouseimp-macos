@@ -378,6 +378,17 @@ click through.
   across rebuilds. `./Scripts/make-signing-identity.sh --remove` undoes it.
   `tccutil reset Accessibility ru.deconstruction.mouseimp` clears a stale entry when
   the signature changed anyway.
+* **Two ordering traps that made the diagnostics switch look broken.** SwiftUI and
+  Combine both deliver change notifications *before* the new value is stored:
+  `@Published` publishes in `willSet`, so a subscriber to `store.$value` that reads
+  `store.value` sees the previous settings. The sink therefore takes the settings it
+  is handed and passes them to `applyDiagnosticsSetting(_:)` and `refresh(_:)`, and a
+  comment says why. Separately, `NSMenu.item(withTag:)` searches only the top level,
+  while the diagnostics entries live in a submenu, so their state and status line were
+  never updated after the menu was built; `NSMenu.itemRecursively(withTag:)` fixes
+  that, with a headless test of its own. Symptom of the pair: the Diagnostics tab
+  showed the switch off while the menu still showed it on and the file kept being
+  written.
 * **The status file can be switched off.** `diagnosticsLog` is a setting (menu bar →
   Diagnostics → Write status file, and the same toggle on the Diagnostics tab) and
   `applyDiagnosticsSetting()` starts or stops the writer accordingly, so a user who

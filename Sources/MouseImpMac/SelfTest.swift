@@ -5,6 +5,7 @@
 // needs no Accessibility permission: posting is recorded in WheelPoster's log
 // instead of being verified on screen.
 
+import AppKit
 import CoreGraphics
 import Foundation
 
@@ -281,7 +282,34 @@ enum SelfTest {
             check("every setting survives encode + decode", decoded == s)
         }
 
-        // 16. A settings blob written by an older build keeps what the user chose,
+        // 16. The menu lookup reaches submenus: the diagnostics entries live there,
+        //     and the plain item(withTag:) only looked at the top level, which left
+        //     their checkmark frozen at launch.
+        do {
+            let menu = NSMenu()
+            let top = NSMenuItem(title: "top", action: nil, keyEquivalent: "")
+            top.tag = 1
+            menu.addItem(top)
+            let parent = NSMenuItem(title: "parent", action: nil, keyEquivalent: "")
+            let submenu = NSMenu()
+            let deep = NSMenuItem(title: "deep", action: nil, keyEquivalent: "")
+            deep.tag = 6
+            submenu.addItem(deep)
+            parent.submenu = submenu
+            menu.addItem(parent)
+
+            check("menu lookup finds a top level item by tag",
+                  menu.itemRecursively(withTag: 1) === top)
+            check("menu lookup finds an item inside a submenu by tag",
+                  menu.itemRecursively(withTag: 6) === deep)
+            menu.itemRecursively(withTag: 6)?.state = .off
+            check("a submenu item keeps the state written through the lookup",
+                  deep.state == .off)
+            check("menu lookup returns nothing for an unknown tag",
+                  menu.itemRecursively(withTag: 42) == nil)
+        }
+
+        // 17. A settings blob written by an older build keeps what the user chose,
         //     maps the old trigger index to its button and fills the rest with
         //     defaults.
         do {

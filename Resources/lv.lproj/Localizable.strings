@@ -121,6 +121,11 @@
 "diag.restart" = "Pārstartēt notikumu pārtveršanu";
 "diag.tools.footer" = "Ieraksts satur visus sistēmas piegādātos notikumu tipus, arī tos, ko lietotne neapstrādā — tā var noskaidrot, ko īsti sūta neparasta peles poga.";
 
+"menu.about" = "Par MouseImp";
+"about.tagline" = "DirectScroll macOS vidē: turiet peles pogu un velciet — ritināsies logs zem kursora.";
+"about.version" = "Versija %@";
+"about.source" = "Pirmkods";
+
 "menu.enabled" = "DirectScroll ieslēgts";
 "menu.settings" = "Iestatījumi…";
 "menu.diagnostics" = "Diagnostika";

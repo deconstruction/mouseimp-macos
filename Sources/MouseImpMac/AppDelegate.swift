@@ -16,8 +16,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Set by `main` when the app is launched with `--show-settings`.
     var openSettingsOnLaunch = false
 
+    /// Set by `main` when the app is launched with `--show-about`.
+    var openAboutOnLaunch = false
+
+    /// Set by `main` from `--set-diagnostics on|off`; applied after the settings
+    /// subscription is installed so it takes the same path as the toggle.
+    var diagnosticsOnLaunch: Bool?
+
     private var statusItem: NSStatusItem?
     private var settingsWindow: NSWindow?
+    private var aboutWindow: NSWindow?
     private var permissionTimer: Timer?
     private var subscription: AnyCancellable?
 
@@ -38,11 +46,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         tap.onStateChange = { [weak self] _ in
             DispatchQueue.main.async { self?.refresh() }
         }
+        // @Published delivers the new value before it is stored, so a subscriber
+        // must work from the value it is handed: reading store.value here would
+        // still see the previous one (that is how the diagnostics switch once
+        // refused to turn off).
         subscription = store.$value.sink { [weak self] settings in
             self?.engine.update(settings: settings)
             TargetCache.shared.setLookForScrollbars(settings.skipScrollbars)
-            self?.applyDiagnosticsSetting()
-            self?.refresh()
+            self?.applyDiagnosticsSetting(settings)
+            self?.refresh(settings)
         }
 
         buildStatusItem()
@@ -65,7 +77,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         TargetCache.shared.setLookForScrollbars(store.value.skipScrollbars)
         TargetCache.shared.start()
 
-        applyDiagnosticsSetting()
+        // Applied before the first start, so --set-diagnostics off really writes
+        // nothing at all rather than opening the file once on the way out.
+        if let wanted = diagnosticsOnLaunch, wanted != store.value.diagnosticsLog {
+            var settings = store.value
+            settings.diagnosticsLog = wanted
+            store.value = settings
+        }
+        applyDiagnosticsSetting(store.value)
 
         if Probes.isTrusted {
             tap.start()
@@ -79,6 +98,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         if openSettingsOnLaunch {
             openSettings()
+        }
+        if openAboutOnLaunch {
+            openAbout()
         }
     }
 
@@ -106,8 +128,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     /// Starts or stops writing the status file, following the setting.
-    private func applyDiagnosticsSetting() {
-        if store.value.diagnosticsLog {
+    /// The setting is passed in because inside the settings subscription
+    /// `store.value` still holds the previous value.
+    private func applyDiagnosticsSetting(_ settings: Settings) {
+        if settings.diagnosticsLog {
             Diagnostics.shared.start { [weak self] in self?.statusText() ?? "" }
         } else {
             Diagnostics.shared.stop()
@@ -201,19 +225,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(login)
 
         menu.addItem(.separator())
+        let about = NSMenuItem(title: NSLocalizedString("menu.about", comment: ""),
+                               action: #selector(openAbout), keyEquivalent: "")
+        about.target = self
+        menu.addItem(about)
         let quit = NSMenuItem(title: NSLocalizedString("menu.quit", comment: ""), action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         menu.addItem(quit)
         return menu
     }
 
-    private func refresh() {
+    /// `settings` is passed by the settings subscription for the same reason as in
+    /// `applyDiagnosticsSetting`; every other caller leaves it nil and the stored
+    /// value is used.
+    private func refresh(_ settings: Settings? = nil) {
+        let s = settings ?? store.value
         guard let menu = statusItem?.menu else { return }
-        menu.item(withTag: 1)?.state = store.value.enabled ? .on : .off
-        menu.item(withTag: 2)?.title = statusLine()
-        menu.item(withTag: 3)?.title = diagnosticsLine()
-        menu.item(withTag: 4)?.state = LoginItem.isEnabled ? .on : .off
-        menu.item(withTag: 6)?.state = store.value.diagnosticsLog ? .on : .off
-        statusItem?.button?.appearsDisabled = !store.value.enabled || !tap.status.isRunning
+        menu.itemRecursively(withTag: 1)?.state = s.enabled ? .on : .off
+        menu.itemRecursively(withTag: 2)?.title = statusLine()
+        menu.itemRecursively(withTag: 3)?.title = diagnosticsLine()
+        menu.itemRecursively(withTag: 4)?.state = LoginItem.isEnabled ? .on : .off
+        menu.itemRecursively(withTag: 6)?.state = s.diagnosticsLog ? .on : .off
+        statusItem?.button?.appearsDisabled = !s.enabled || !tap.status.isRunning
     }
 
     private func statusLine() -> String {
@@ -270,6 +302,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         lines.append("mouseimp status")
         lines.append("updated: \(Self.timestamp())")
         lines.append("enabled: \(s.enabled)")
+        lines.append("writer: \(s.diagnosticsLog ? "on" : "off")")
         lines.append("language: \(Bundle.main.preferredLocalizations.first ?? "?") of \(Array(Set(Bundle.main.localizations)).sorted().joined(separator: ","))")
         lines.append("trigger: \(s.triggerButton.title)")
         lines.append("modifiers: require=\(s.requireModifiers.label) disable=\(s.disableModifiers.label) slow=\(s.slowModifiers.label)")
@@ -328,6 +361,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         var settings = store.value
         settings.enabled.toggle()
         store.value = settings
+    }
+
+    @objc private func openAbout() {
+        if aboutWindow == nil {
+            let hosting = NSHostingView(rootView: AboutView())
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 340, height: 360),
+                                  styleMask: [.titled, .closable],
+                                  backing: .buffered,
+                                  defer: false)
+            window.title = NSLocalizedString("menu.about", comment: "")
+            window.contentView = hosting
+            window.setContentSize(hosting.fittingSize)
+            window.isReleasedWhenClosed = false
+            window.center()
+            aboutWindow = window
+        }
+        aboutWindow?.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
     }
 
     @objc private func openSettings() {

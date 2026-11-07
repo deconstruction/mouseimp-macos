@@ -173,7 +173,17 @@ Checks the whole gesture state machine (trigger buttons including the extra ones
 drag threshold, speed, inversion, axis lock, modifier rules, click pass through,
 sub-pixel accumulation, Escape, freeze cursor, the three speed modes, the settings
 format including upgrades from older versions, and inertia being independent of the
-mode) without needing any permission: 42 checks, no tap, no Accessibility.
+mode, and the menu lookup that reaches submenu items) without needing any
+permission: 46 checks, no tap, no Accessibility.
+
+A few development flags, also handy for scripts:
+
+```sh
+open MouseImp.app --args --show-settings            # open the settings window
+open MouseImp.app --args --show-about               # open the About window
+open MouseImp.app --args --set-diagnostics off      # same path as the menu toggle
+open MouseImp.app --args -AppleLanguages "(de)"     # check a translation
+```
 
 ## Safety: this program sits in the input path of the whole machine
 
